@@ -46,7 +46,7 @@ jobs:
         id: docs
         run: |
           # Ensure newly created files are visible to git diff
-          git add '*.docs.md'
+          git add '*.docs.md' 2>/dev/null || true
           # Identify modified files
           MODIFIED_FILES=$(git diff --name-only HEAD -- '*.docs.md')
           if [ -z "$MODIFIED_FILES" ]; then
