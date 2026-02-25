@@ -1,0 +1,1812 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Storybook — Language Learning Reader</title>
+  <style>
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      font-family: -apple-system, BlinkMacSystemFont, 'Helvetica Neue', Helvetica, Arial, sans-serif;
+      font-size: 15px;
+      background: #f3f4f6;
+      color: #111827;
+    }
+
+    input, textarea, select, button {
+      font-family: inherit;
+      font-size: 16px;
+    }
+
+    /* ── Layout ─────────────────────────────────── */
+    .container { max-width: 1100px; margin: 0 auto; padding: 0 16px; }
+
+    /* ── Header ─────────────────────────────────── */
+    .app-header {
+      background: #fff;
+      border-bottom: 1px solid #e5e7eb;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      box-shadow: 0 1px 3px rgba(0,0,0,.06);
+    }
+    .app-header .inner {
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 10px 16px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+    .header-title { font-size: 1.2rem; font-weight: 700; flex: 1; min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .header-sub { font-size: .8rem; color: #6b7280; }
+    .header-controls { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
+
+    /* ── Icon buttons ────────────────────────────── */
+    .icon-btn {
+      background: none;
+      border: none;
+      cursor: pointer;
+      padding: 6px;
+      border-radius: 6px;
+      color: #6b7280;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .icon-btn:hover { background: #f3f4f6; color: #111827; }
+    .icon-btn.active { background: #dbeafe; color: #1d4ed8; }
+    .icon-btn.active-green { background: #dcfce7; color: #15803d; }
+    .icon-btn.active-purple { background: #f3e8ff; color: #7c3aed; }
+    .icon-btn svg { width: 20px; height: 20px; }
+
+    /* ── Mode pills ──────────────────────────────── */
+    .mode-pills { display: flex; gap: 2px; background: #f3f4f6; border-radius: 6px; padding: 2px; }
+    .mode-pill {
+      background: none;
+      border: none;
+      cursor: pointer;
+      padding: 4px 10px;
+      border-radius: 4px;
+      font-size: .8rem;
+      color: #6b7280;
+    }
+    .mode-pill.active { background: #fff; color: #1d4ed8; font-weight: 600; box-shadow: 0 1px 2px rgba(0,0,0,.1); }
+
+    .lang-flag-btn {
+      background: none;
+      border: none;
+      cursor: pointer;
+      font-size: 1.25rem;
+      padding: 2px 4px;
+      border-radius: 4px;
+      opacity: .35;
+    }
+    .lang-flag-btn.active { opacity: 1; background: #dbeafe; }
+
+    .speed-select {
+      border: 1px solid #d1d5db;
+      border-radius: 4px;
+      padding: 3px 6px;
+      font-size: .8rem;
+      color: #374151;
+      background: #fff;
+    }
+
+    /* ── Library ─────────────────────────────────── */
+    .library-wrap { max-width: 1100px; margin: 0 auto; padding: 24px 16px; }
+    .search-wrap { max-width: 480px; margin: 0 auto 28px; position: relative; }
+    .search-wrap input {
+      width: 100%;
+      padding: 10px 16px 10px 40px;
+      border: 1px solid #d1d5db;
+      border-radius: 8px;
+      background: #fff;
+      outline: none;
+    }
+    .search-wrap input:focus { border-color: #3b82f6; box-shadow: 0 0 0 2px #bfdbfe; }
+    .search-icon {
+      position: absolute;
+      left: 12px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: #9ca3af;
+      pointer-events: none;
+    }
+    .search-spinner {
+      position: absolute;
+      right: 12px;
+      top: 50%;
+      transform: translateY(-50%);
+    }
+    .search-dropdown {
+      position: absolute;
+      top: calc(100% + 4px);
+      left: 0; right: 0;
+      background: #fff;
+      border: 1px solid #d1d5db;
+      border-radius: 8px;
+      box-shadow: 0 8px 24px rgba(0,0,0,.12);
+      max-height: 400px;
+      overflow-y: auto;
+      z-index: 200;
+    }
+    .search-result-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      padding: 10px 14px;
+      cursor: pointer;
+      border-bottom: 1px solid #f3f4f6;
+      text-align: left;
+      background: none;
+      border-left: none;
+      border-right: none;
+      border-top: none;
+      width: 100%;
+    }
+    .search-result-item:hover { background: #f9fafb; }
+    .search-result-item:last-child { border-bottom: none; }
+    .result-cover { width: 40px; height: 56px; object-fit: cover; border-radius: 3px; flex-shrink: 0; background: #e5e7eb; }
+    .result-info { flex: 1; min-width: 0; }
+    .result-title { font-size: .85rem; font-weight: 600; color: #111827; margin: 0 0 2px; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+    .result-author { font-size: .8rem; color: #6b7280; margin: 0; }
+    .result-add { color: #16a34a; font-size: 1.2rem; flex-shrink: 0; align-self: center; }
+    .search-empty { padding: 16px; text-align: center; color: #6b7280; font-size: .9rem; }
+    .search-error { padding: 12px 16px; background: #fef2f2; color: #dc2626; font-size: .85rem; border-bottom: 1px solid #fecaca; }
+
+    .book-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 14px;
+    }
+    @media (min-width: 480px) { .book-grid { grid-template-columns: repeat(3, 1fr); } }
+    @media (min-width: 700px) { .book-grid { grid-template-columns: repeat(4, 1fr); } }
+    @media (min-width: 900px) { .book-grid { grid-template-columns: repeat(5, 1fr); } }
+
+    .book-card {
+      background: #fff;
+      border-radius: 8px;
+      box-shadow: 0 1px 3px rgba(0,0,0,.1);
+      overflow: hidden;
+      cursor: pointer;
+      border: none;
+      padding: 0;
+      text-align: left;
+      transition: transform .15s, box-shadow .15s;
+    }
+    .book-card:hover { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(0,0,0,.15); }
+    .book-cover { width: 100%; aspect-ratio: 2/3; object-fit: cover; display: block; background: #e5e7eb; }
+    .book-cover-placeholder {
+      width: 100%;
+      aspect-ratio: 2/3;
+      background: linear-gradient(135deg, #6366f1, #8b5cf6);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      color: #fff;
+      padding: 8px;
+      text-align: center;
+    }
+    .book-cover-placeholder .book-icon { font-size: 2rem; margin-bottom: 6px; }
+    .book-cover-placeholder .book-placeholder-title { font-size: .7rem; font-weight: 600; line-height: 1.3; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
+    .book-info { padding: 8px; }
+    .book-title { font-size: .8rem; font-weight: 600; margin: 0 0 2px; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; line-height: 1.3; }
+    .book-author { font-size: .72rem; color: #6b7280; margin: 0; display: -webkit-box; -webkit-line-clamp: 1; -webkit-box-orient: vertical; overflow: hidden; }
+    .empty-library { text-align: center; padding: 40px; color: #6b7280; grid-column: 1/-1; }
+
+    /* ── Reader ──────────────────────────────────── */
+    .reader-body { max-width: 960px; margin: 0 auto; padding: 20px 16px 100px; }
+
+    /* Sentence mode */
+    .para-block { background: #fff; border-radius: 8px; box-shadow: 0 1px 3px rgba(0,0,0,.08); padding: 14px; margin-bottom: 16px; }
+    .sentence-group { border-radius: 6px; padding: 8px; cursor: pointer; margin-bottom: 8px; }
+    .sentence-group:hover { background: #f9fafb; }
+    .sentence-group.selected { background: #eff6ff; border: 1px solid #bfdbfe; }
+    .sentence-row { display: flex; align-items: flex-start; gap: 8px; margin-bottom: 6px; }
+    .sentence-row:last-child { margin-bottom: 0; }
+    .lang-badge {
+      font-size: .65rem;
+      font-weight: 700;
+      padding: 2px 6px;
+      border-radius: 4px;
+      flex-shrink: 0;
+      margin-top: 2px;
+      letter-spacing: .04em;
+    }
+    .badge-en { background: #dcfce7; color: #15803d; }
+    .badge-fr { background: #dbeafe; color: #1e40af; }
+    .badge-de { background: #1f2937; color: #fff; }
+    .badge-es { background: #fef9c3; color: #854d0e; }
+    .badge-ru { background: #fee2e2; color: #991b1b; }
+    .badge-it { background: #dcfce7; color: #166534; }
+    .badge-pt { background: #dbeafe; color: #1e3a8a; }
+    .badge-zh { background: #fce7f3; color: #9d174d; }
+    .badge-ja { background: #fce7f3; color: #9d174d; }
+    .badge-ko { background: #e0f2fe; color: #075985; }
+    .badge-ar { background: #d1fae5; color: #065f46; }
+    .badge-bn { background: #d1fae5; color: #064e3b; }
+    .sentence-text { flex: 1; line-height: 1.6; font-size: .95rem; color: #111827; margin: 0; }
+    .sentence-text.blurred { filter: blur(4px); }
+    .sentence-text.blurred:hover { filter: none; }
+    .trans-block { flex: 1; }
+    .trans-text { margin: 0; line-height: 1.6; font-size: .95rem; color: #1f2937; }
+    .phonetic-text { margin: 2px 0 0; font-size: .8rem; color: #6b7280; font-style: italic; }
+    .audio-btn {
+      background: none;
+      border: none;
+      cursor: pointer;
+      padding: 4px;
+      border-radius: 4px;
+      color: #9ca3af;
+      flex-shrink: 0;
+      margin-top: 1px;
+    }
+    .audio-btn:hover { color: #3b82f6; background: #eff6ff; }
+    .audio-btn.playing { color: #3b82f6; }
+    .audio-btn svg { width: 16px; height: 16px; }
+
+    /* Paragraph mode */
+    .para-grid { display: grid; grid-template-columns: 1fr; gap: 0; }
+    @media (min-width: 640px) {
+      .para-grid { grid-template-columns: 1fr 1fr; gap: 24px; }
+    }
+    .para-col-header { font-size: .7rem; font-weight: 700; padding: 4px 8px; border-radius: 4px; display: inline-block; margin-bottom: 10px; }
+    .para-col-en { border-bottom: 1px solid #e5e7eb; padding-bottom: 14px; margin-bottom: 14px; }
+    @media (min-width: 640px) {
+      .para-col-en { border-bottom: none; padding-bottom: 0; margin-bottom: 0; border-right: 1px solid #e5e7eb; padding-right: 12px; }
+    }
+    .para-sentence { display: block; margin-bottom: 8px; line-height: 1.7; font-size: .95rem; cursor: pointer; border-radius: 3px; padding: 2px 4px; }
+    .para-sentence:hover { background: #f9fafb; }
+    .para-sentence.selected-en { background: #fef9c3; }
+    .para-sentence.selected-trans { background: #eff6ff; }
+    .para-sentence.blurred { filter: blur(4px); }
+    .para-sentence.blurred:hover { filter: none; }
+
+    /* Loading overlay */
+    .trans-loading { text-align: center; padding: 20px; color: #6b7280; }
+    .spinner {
+      display: inline-block;
+      width: 20px; height: 20px;
+      border: 2px solid #e5e7eb;
+      border-top-color: #3b82f6;
+      border-radius: 50%;
+      animation: spin .7s linear infinite;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .spinner-sm { width: 14px; height: 14px; border-width: 2px; }
+
+    /* Pagination bar */
+    .pagination-bar {
+      position: fixed;
+      bottom: 0; left: 0; right: 0;
+      background: #fff;
+      border-top: 1px solid #e5e7eb;
+      box-shadow: 0 -2px 8px rgba(0,0,0,.06);
+      z-index: 100;
+      padding: 10px 16px;
+    }
+    .pagination-inner { max-width: 960px; margin: 0 auto; }
+    .page-slider-row { display: flex; align-items: center; gap: 10px; margin-bottom: 8px; }
+    .page-label { font-size: .75rem; color: #9ca3af; white-space: nowrap; }
+    .page-slider {
+      flex: 1;
+      -webkit-appearance: none;
+      appearance: none;
+      height: 6px;
+      border-radius: 3px;
+      background: #e5e7eb;
+      outline: none;
+      cursor: pointer;
+    }
+    .page-slider::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      appearance: none;
+      width: 18px; height: 18px;
+      background: #2563eb;
+      border-radius: 50%;
+      border: 2px solid #fff;
+      box-shadow: 0 1px 4px rgba(0,0,0,.2);
+      cursor: pointer;
+    }
+    .page-slider::-moz-range-thumb {
+      width: 18px; height: 18px;
+      background: #2563eb;
+      border-radius: 50%;
+      border: 2px solid #fff;
+      box-shadow: 0 1px 4px rgba(0,0,0,.2);
+      cursor: pointer;
+    }
+    .page-nav-row { display: flex; justify-content: space-between; align-items: center; }
+    .page-nav-btn {
+      padding: 7px 18px;
+      background: #2563eb;
+      color: #fff;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: .85rem;
+      font-weight: 600;
+    }
+    .page-nav-btn:disabled { background: #9ca3af; cursor: not-allowed; }
+    .page-nav-btn:not(:disabled):hover { background: #1d4ed8; }
+    .page-info { font-size: .85rem; color: #6b7280; font-weight: 500; }
+
+    /* ── Modals ──────────────────────────────────── */
+    .modal-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,.5);
+      z-index: 500;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 16px;
+    }
+    .modal-overlay.hidden { display: none; }
+    .modal-box {
+      background: #fff;
+      border-radius: 12px;
+      box-shadow: 0 20px 60px rgba(0,0,0,.2);
+      max-width: 480px;
+      width: 100%;
+      max-height: 90vh;
+      overflow-y: auto;
+    }
+    .modal-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 18px 20px;
+      border-bottom: 1px solid #e5e7eb;
+    }
+    .modal-header h2 { margin: 0; font-size: 1.1rem; }
+    .modal-close { background: none; border: none; cursor: pointer; color: #9ca3af; font-size: 1.4rem; line-height: 1; padding: 0 4px; }
+    .modal-close:hover { color: #374151; }
+    .modal-body { padding: 20px; }
+    .modal-footer { padding: 14px 20px; border-top: 1px solid #e5e7eb; background: #f9fafb; border-radius: 0 0 12px 12px; display: flex; gap: 10px; }
+
+    .form-label { display: block; font-size: .85rem; font-weight: 600; color: #374151; margin-bottom: 6px; }
+    .form-input {
+      width: 100%;
+      padding: 9px 12px;
+      border: 1px solid #d1d5db;
+      border-radius: 6px;
+      background: #fff;
+      outline: none;
+    }
+    .form-input:focus { border-color: #3b82f6; box-shadow: 0 0 0 2px #bfdbfe; }
+
+    .btn-primary {
+      padding: 9px 20px;
+      background: #2563eb;
+      color: #fff;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: .9rem;
+      font-weight: 600;
+      flex: 1;
+    }
+    .btn-primary:hover { background: #1d4ed8; }
+    .btn-primary:disabled { background: #9ca3af; cursor: not-allowed; }
+    .btn-secondary {
+      padding: 9px 18px;
+      background: #e5e7eb;
+      color: #374151;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: .9rem;
+      font-weight: 600;
+    }
+    .btn-secondary:hover { background: #d1d5db; }
+
+    .fieldset-label { font-size: .85rem; font-weight: 600; color: #374151; margin-bottom: 8px; display: block; }
+    .radio-group { display: flex; gap: 16px; flex-wrap: wrap; }
+    .radio-label { display: flex; align-items: center; gap: 6px; cursor: pointer; font-size: .9rem; }
+    .lang-chips { display: flex; flex-wrap: wrap; gap: 8px; }
+    .lang-chip {
+      padding: 6px 14px;
+      border: 2px solid #e5e7eb;
+      border-radius: 20px;
+      background: #fff;
+      cursor: pointer;
+      font-size: .85rem;
+      color: #374151;
+    }
+    .lang-chip.selected { border-color: #3b82f6; background: #eff6ff; color: #1d4ed8; font-weight: 600; }
+    .lang-chip:hover:not(.selected) { border-color: #9ca3af; }
+    .hint-text { font-size: .75rem; color: #9ca3af; margin-top: 6px; }
+    .error-text { color: #dc2626; font-size: .85rem; margin-top: 6px; }
+    .success-text { color: #16a34a; font-size: .85rem; margin-top: 6px; }
+
+    /* ── Tooltip ─────────────────────────────────── */
+    #tooltip {
+      position: fixed;
+      z-index: 600;
+      background: #1f2937;
+      color: #fff;
+      padding: 8px 12px;
+      border-radius: 8px;
+      font-size: .8rem;
+      max-width: 220px;
+      box-shadow: 0 4px 16px rgba(0,0,0,.2);
+      pointer-events: none;
+    }
+    #tooltip.hidden { display: none; }
+    .tooltip-word { font-weight: 700; font-size: .9rem; }
+    .tooltip-pos { font-size: .75rem; color: #9ca3af; font-style: italic; }
+    .tooltip-def { margin-top: 4px; line-height: 1.4; }
+
+    /* ── Download progress ───────────────────────── */
+    .download-progress {
+      margin-top: 12px;
+      padding: 10px 14px;
+      background: #eff6ff;
+      border-radius: 6px;
+      font-size: .85rem;
+      color: #1d4ed8;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    /* ── Word interactive ────────────────────────── */
+    .word {
+      cursor: pointer;
+      border-radius: 2px;
+      transition: background .1s;
+    }
+    .word:hover { background: #fef9c3; }
+
+    /* ── Back link ───────────────────────────────── */
+    .back-link { color: #6b7280; text-decoration: none; font-size: .9rem; }
+    .back-link:hover { color: #111827; }
+  </style>
+</head>
+<body>
+
+<div id="app"></div>
+
+<!-- API Key Modal (static) -->
+<div id="api-key-modal" class="modal-overlay hidden">
+  <div class="modal-box">
+    <div class="modal-header">
+      <h2>OpenAI API Key</h2>
+      <button class="modal-close" id="api-modal-close" title="Close">&times;</button>
+    </div>
+    <div class="modal-body">
+      <p style="margin:0 0 14px; color:#6b7280; font-size:.9rem;">
+        Storybook uses OpenAI for translation, text-to-speech, and word definitions.
+        Your key is stored only in your browser's localStorage.
+      </p>
+      <label class="form-label" for="api-key-input">API Key</label>
+      <input class="form-input" type="password" id="api-key-input" placeholder="sk-…" autocomplete="off">
+      <div id="api-key-error" class="error-text" style="display:none"></div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-primary" id="api-key-save">Save key</button>
+    </div>
+  </div>
+</div>
+
+<!-- Reading Options Modal (static) -->
+<div id="options-modal" class="modal-overlay hidden">
+  <div class="modal-box">
+    <div class="modal-header">
+      <h2 id="options-modal-title">Reading Options</h2>
+      <button class="modal-close" id="options-modal-close">&times;</button>
+    </div>
+    <div class="modal-body" style="display:flex; flex-direction:column; gap:20px;">
+      <div>
+        <span class="fieldset-label">Reading Mode</span>
+        <div class="radio-group">
+          <label class="radio-label">
+            <input type="radio" name="opt-mode" value="sentence" id="opt-mode-sentence" checked>
+            Sentence mode (interlaced)
+          </label>
+          <label class="radio-label">
+            <input type="radio" name="opt-mode" value="paragraph" id="opt-mode-paragraph">
+            Paragraph mode (side-by-side)
+          </label>
+        </div>
+      </div>
+      <div>
+        <span class="fieldset-label" id="opt-lang-label">Translation Language(s)</span>
+        <div class="lang-chips" id="opt-lang-chips"></div>
+        <p class="hint-text" id="opt-lang-hint">Select one or more languages in sentence mode</p>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-primary" id="options-start-btn">Start Reading</button>
+      <button class="btn-secondary" id="options-cancel-btn">Cancel</button>
+    </div>
+  </div>
+</div>
+
+<!-- Word Definition Tooltip -->
+<div id="tooltip" class="hidden">
+  <div class="tooltip-word" id="tooltip-word"></div>
+  <div class="tooltip-pos" id="tooltip-pos"></div>
+  <div class="tooltip-def" id="tooltip-def"></div>
+</div>
+
+<script type="module">
+
+// ── Constants ────────────────────────────────────────────────────────────────
+
+const LANGUAGES = {
+  fr: { name: 'French',     flag: '🇫🇷', code: 'FRA' },
+  de: { name: 'German',     flag: '🇩🇪', code: 'DEU' },
+  es: { name: 'Spanish',    flag: '🇪🇸', code: 'ESP' },
+  ru: { name: 'Russian',    flag: '🇷🇺', code: 'RUS' },
+  it: { name: 'Italian',    flag: '🇮🇹', code: 'ITA' },
+  pt: { name: 'Portuguese', flag: '🇵🇹', code: 'POR' },
+  zh: { name: 'Chinese',    flag: '🇨🇳', code: 'ZHO' },
+  ja: { name: 'Japanese',   flag: '🇯🇵', code: 'JPN' },
+  ko: { name: 'Korean',     flag: '🇰🇷', code: 'KOR' },
+  ar: { name: 'Arabic',     flag: '🇸🇦', code: 'ARA' },
+  bn: { name: 'Bengali',    flag: '🇧🇩', code: 'BEN' },
+};
+
+const PHONETIC_LANGS = new Set(['zh', 'ja', 'ko', 'ar', 'ru', 'bn', 'hi', 'th']);
+
+const TOP_BOOKS = [
+  { id: '1342', title: 'Pride and Prejudice',            author: 'Jane Austen' },
+  { id: '11',   title: "Alice's Adventures in Wonderland", author: 'Lewis Carroll' },
+  { id: '84',   title: 'Frankenstein',                   author: 'Mary Shelley' },
+  { id: '1661', title: 'The Adventures of Sherlock Holmes', author: 'Arthur Conan Doyle' },
+  { id: '98',   title: 'A Tale of Two Cities',           author: 'Charles Dickens' },
+  { id: '74',   title: 'The Adventures of Tom Sawyer',   author: 'Mark Twain' },
+  { id: '2701', title: 'Moby Dick',                      author: 'Herman Melville' },
+  { id: '1232', title: 'The Prince',                     author: 'Niccolò Machiavelli' },
+  { id: '345',  title: 'Dracula',                        author: 'Bram Stoker' },
+  { id: '46',   title: 'A Christmas Carol',              author: 'Charles Dickens' },
+];
+
+const PER_PAGE = 6;
+
+// ── State ────────────────────────────────────────────────────────────────────
+
+const state = {
+  currentBook: null,
+  currentPage: 0,
+  totalPages: 0,
+  paragraphs: [],
+  selectedLanguages: ['fr'],
+  readingMode: 'sentence',
+  phoneticEnabled: false,
+  englishBlurred: false,
+  audioEnabled: false,
+  audioSpeed: 1.0,
+  currentlyPlayingId: null,
+  currentAudio: null,
+  loadingTranslations: false,
+  searchQuery: '',
+  searchResults: [],
+  searchLoading: false,
+  searchError: null,
+  searchDebounce: null,
+  pendingBookId: null,
+};
+
+// ── localStorage helpers ─────────────────────────────────────────────────────
+
+function getApiKey() { return localStorage.getItem('sb_api_key') || ''; }
+function setApiKey(k) { localStorage.setItem('sb_api_key', k); }
+
+function getBooks() {
+  try { return JSON.parse(localStorage.getItem('sb_books') || '[]'); } catch { return []; }
+}
+function saveBooks(books) { localStorage.setItem('sb_books', JSON.stringify(books)); }
+
+function getBookText(id) { return localStorage.getItem(`sb_book_${id}_text`) || ''; }
+function saveBookText(id, text) { localStorage.setItem(`sb_book_${id}_text`, text); }
+
+function getTranslation(bookId, paraId, sIdx, lang) {
+  try {
+    const raw = localStorage.getItem(`sb_trans_${bookId}_${paraId}_${sIdx}_${lang}`);
+    return raw ? JSON.parse(raw) : null;
+  } catch { return null; }
+}
+function saveTranslation(bookId, paraId, sIdx, lang, data) {
+  localStorage.setItem(`sb_trans_${bookId}_${paraId}_${sIdx}_${lang}`, JSON.stringify(data));
+}
+
+function getWordDef(word, lang) {
+  try {
+    const raw = localStorage.getItem(`sb_wdef_${word}_${lang}`);
+    return raw ? JSON.parse(raw) : null;
+  } catch { return null; }
+}
+function saveWordDef(word, lang, data) {
+  localStorage.setItem(`sb_wdef_${word}_${lang}`, JSON.stringify(data));
+}
+
+function getPrefs() {
+  try { return JSON.parse(localStorage.getItem('sb_prefs') || '{}'); } catch { return {}; }
+}
+function savePrefs() {
+  localStorage.setItem('sb_prefs', JSON.stringify({
+    selectedLanguages: state.selectedLanguages,
+    readingMode: state.readingMode,
+    audioSpeed: state.audioSpeed,
+    phoneticEnabled: state.phoneticEnabled,
+    englishBlurred: state.englishBlurred,
+  }));
+}
+
+function getBookPos(id) {
+  try { return JSON.parse(localStorage.getItem(`sb_book_${id}_pos`) || '{"page":0}'); } catch { return { page: 0 }; }
+}
+function saveBookPos(id, page) {
+  localStorage.setItem(`sb_book_${id}_pos`, JSON.stringify({ page }));
+}
+
+// ── Text processing ──────────────────────────────────────────────────────────
+
+function extractMainContent(text) {
+  const startMarkers = [
+    '*** START OF THIS PROJECT GUTENBERG',
+    '*** START OF THE PROJECT GUTENBERG',
+    '*END*THE SMALL PRINT',
+    '*END THE SMALL PRINT',
+  ];
+  const endMarkers = [
+    '*** END OF THIS PROJECT GUTENBERG',
+    '*** END OF THE PROJECT GUTENBERG',
+    'End of the Project Gutenberg',
+    'End of Project Gutenberg',
+  ];
+
+  let startIndex = 0;
+  let endIndex = text.length;
+
+  for (const marker of startMarkers) {
+    const idx = text.indexOf(marker);
+    if (idx !== -1) {
+      const lineEnd = text.indexOf('\n', idx);
+      startIndex = lineEnd + 1;
+      break;
+    }
+  }
+  for (const marker of endMarkers) {
+    const idx = text.indexOf(marker);
+    if (idx !== -1) { endIndex = idx; break; }
+  }
+
+  let content = text.substring(startIndex, endIndex);
+  content = content.replace(/\r\n/g, '\n').replace(/\n{3,}/g, '\n\n').trim();
+  return content;
+}
+
+function parseBookPage(cleanText, page, perPage = PER_PAGE) {
+  const allParas = cleanText
+    .split(/\n\s*\n/)
+    .map(p => p.replace(/\s+/g, ' ').trim())
+    .filter(p => p.length > 40);
+  const totalPages = Math.ceil(allParas.length / perPage);
+  const safePage = Math.max(0, Math.min(page, totalPages - 1));
+  const slice = allParas.slice(safePage * perPage, (safePage + 1) * perPage);
+  return {
+    totalPages,
+    page: safePage,
+    paragraphs: slice.map((text, i) => ({
+      id: `p${safePage * perPage + i}`,
+      absIdx: safePage * perPage + i,
+      text,
+      sentences: (text.match(/[^.!?]+[.!?]+/g) ?? [text]).map(s => s.trim()).filter(Boolean),
+    })),
+  };
+}
+
+// ── API: Gutenberg search ────────────────────────────────────────────────────
+
+async function searchGutenberg(query) {
+  const url = `https://gutendex.com/books/?search=${encodeURIComponent(query)}&languages=en`;
+  const res = await fetch(url);
+  if (!res.ok) throw new Error('Gutendex search failed');
+  const data = await res.json();
+  return (data.results || []).map(book => {
+    const author = book.authors?.[0]?.name ?? 'Unknown';
+    // Gutenberg author format is "Last, First" — normalize
+    const authorNorm = author.includes(',')
+      ? author.split(',').map(s => s.trim()).reverse().join(' ')
+      : author;
+    const textUrl = findTextUrl(book.formats);
+    const coverUrl = `https://www.gutenberg.org/cache/epub/${book.id}/pg${book.id}.cover.medium.jpg`;
+    return { id: String(book.id), title: book.title, author: authorNorm, textUrl, coverUrl };
+  }).filter(b => b.textUrl);
+}
+
+function findTextUrl(formats) {
+  const keys = Object.keys(formats || {});
+  // Prefer utf-8 plain text
+  for (const k of keys) {
+    if (k.includes('text/plain') && k.includes('utf-8')) return formats[k];
+  }
+  for (const k of keys) {
+    if (k.includes('text/plain')) return formats[k];
+  }
+  return null;
+}
+
+// ── API: Download book ───────────────────────────────────────────────────────
+
+async function downloadBook(bookResult) {
+  const proxyUrl = `https://corsproxy.io/?${encodeURIComponent(bookResult.textUrl)}`;
+  const res = await fetch(proxyUrl);
+  if (!res.ok) throw new Error(`Download failed: ${res.status}`);
+  const rawText = await res.text();
+  if (rawText.length < 500) throw new Error('Downloaded text too short');
+  const cleanText = extractMainContent(rawText);
+  if (cleanText.length < 1000) throw new Error('Cleaned text too short');
+
+  const books = getBooks();
+  const exists = books.find(b => b.id === bookResult.id);
+  if (!exists) {
+    books.push({ id: bookResult.id, title: bookResult.title, author: bookResult.author, coverUrl: bookResult.coverUrl });
+    saveBooks(books);
+  }
+  saveBookText(bookResult.id, cleanText);
+  return bookResult.id;
+}
+
+// ── API: Translation ─────────────────────────────────────────────────────────
+
+async function translateBatch(sentences, lang, bookId, paragraphs) {
+  // sentences: array of { paraId, sIdx, text }
+  // Returns nothing; writes to localStorage and updates DOM
+  const apiKey = getApiKey();
+  if (!apiKey) { showApiKeyModal(); return; }
+
+  const needTranslation = sentences.filter(s => !getTranslation(bookId, s.paraId, s.sIdx, lang));
+  if (needTranslation.length === 0) return;
+
+  const langName = LANGUAGES[lang]?.name || lang;
+  const needsPhonetic = PHONETIC_LANGS.has(lang) && state.phoneticEnabled;
+  const batchSize = 5;
+
+  for (let i = 0; i < needTranslation.length; i += batchSize) {
+    const batch = needTranslation.slice(i, i + batchSize);
+    const numbered = batch.map((s, j) => `${j + 1}. ${s.text}`).join('\n');
+
+    let systemMsg = `You are a professional translator. Translate each numbered English sentence to ${langName}.`;
+    if (needsPhonetic) {
+      systemMsg += ' Also provide romanized phonetics for each translation.';
+      systemMsg += ' Respond with ONLY valid JSON: {"translations":[{"t":"...","p":"..."}]}';
+    } else {
+      systemMsg += ' Respond with ONLY valid JSON: {"translations":[{"t":"..."}]}';
+    }
+
+    try {
+      const res = await fetch('https://api.openai.com/v1/chat/completions', {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${apiKey}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          model: 'gpt-4o-mini',
+          response_format: { type: 'json_object' },
+          temperature: 0.2,
+          messages: [
+            { role: 'system', content: systemMsg },
+            { role: 'user', content: numbered },
+          ],
+        }),
+      });
+
+      if (!res.ok) {
+        const err = await res.json().catch(() => ({}));
+        console.error('Translation API error:', err);
+        continue;
+      }
+
+      const data = await res.json();
+      const raw = data.choices?.[0]?.message?.content ?? '{}';
+      let parsed;
+      try { parsed = JSON.parse(raw); } catch { continue; }
+
+      const translations = parsed.translations ?? [];
+      batch.forEach((s, j) => {
+        const entry = translations[j] ?? {};
+        const result = { translatedText: entry.t || '', phoneticText: entry.p || null };
+        saveTranslation(bookId, s.paraId, s.sIdx, lang, result);
+        // Update DOM directly
+        updateTranslationDOM(s.paraId, s.sIdx, lang, result);
+      });
+    } catch (err) {
+      console.error('Batch translation failed:', err);
+    }
+  }
+}
+
+function updateTranslationDOM(paraId, sIdx, lang, result) {
+  const transEl = document.getElementById(`trans-${paraId}-${sIdx}-${lang}`);
+  if (transEl) transEl.innerHTML = makeWordsInteractive(result.translatedText, lang);
+
+  const phoneticEl = document.getElementById(`phonetic-${paraId}-${sIdx}-${lang}`);
+  if (phoneticEl) {
+    if (state.phoneticEnabled && result.phoneticText) {
+      phoneticEl.textContent = result.phoneticText;
+      phoneticEl.style.display = '';
+    } else {
+      phoneticEl.style.display = 'none';
+    }
+  }
+
+  // Remove spinner if present
+  const spinnerEl = document.getElementById(`spinner-${paraId}-${sIdx}-${lang}`);
+  if (spinnerEl) spinnerEl.remove();
+}
+
+// ── API: Audio TTS ───────────────────────────────────────────────────────────
+
+async function playAudio(text, sentenceKey) {
+  const apiKey = getApiKey();
+  if (!apiKey) { showApiKeyModal(); return; }
+
+  // If already playing this sentence, stop it
+  if (state.currentlyPlayingId === sentenceKey) {
+    stopAudio();
+    return;
+  }
+  stopAudio();
+
+  try {
+    const res = await fetch('https://api.openai.com/v1/audio/speech', {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${apiKey}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        model: 'tts-1',
+        voice: 'alloy',
+        input: text,
+        speed: state.audioSpeed,
+      }),
+    });
+    if (!res.ok) throw new Error(`TTS error: ${res.status}`);
+
+    const blob = await res.blob();
+    const url = URL.createObjectURL(blob);
+    const audio = new Audio(url);
+
+    audio.addEventListener('ended', () => {
+      URL.revokeObjectURL(url);
+      if (state.currentlyPlayingId === sentenceKey) {
+        state.currentlyPlayingId = null;
+        state.currentAudio = null;
+        updateAudioBtnState(sentenceKey, false);
+      }
+    });
+    audio.addEventListener('error', () => {
+      URL.revokeObjectURL(url);
+      state.currentlyPlayingId = null;
+      state.currentAudio = null;
+    });
+
+    await audio.play();
+    state.currentAudio = audio;
+    state.currentlyPlayingId = sentenceKey;
+    updateAudioBtnState(sentenceKey, true);
+  } catch (err) {
+    console.error('Audio playback failed:', err);
+    state.currentlyPlayingId = null;
+    state.currentAudio = null;
+  }
+}
+
+function stopAudio() {
+  if (state.currentAudio) {
+    state.currentAudio.pause();
+    state.currentAudio = null;
+  }
+  const prev = state.currentlyPlayingId;
+  state.currentlyPlayingId = null;
+  if (prev) updateAudioBtnState(prev, false);
+}
+
+function updateAudioBtnState(sentenceKey, playing) {
+  const btn = document.querySelector(`[data-audio-key="${sentenceKey}"]`);
+  if (!btn) return;
+  btn.classList.toggle('playing', playing);
+  btn.title = playing ? 'Stop audio' : 'Play audio';
+  btn.innerHTML = playing ? svgPause() : svgPlay();
+}
+
+// ── API: Word definition ─────────────────────────────────────────────────────
+
+async function fetchWordDef(word, lang) {
+  const cached = getWordDef(word, lang);
+  if (cached) return cached;
+
+  const apiKey = getApiKey();
+  if (!apiKey) return null;
+
+  const langName = LANGUAGES[lang]?.name || lang;
+  try {
+    const res = await fetch('https://api.openai.com/v1/chat/completions', {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${apiKey}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        model: 'gpt-4o-mini',
+        max_tokens: 80,
+        messages: [{
+          role: 'user',
+          content: `Define "${word}" in ${langName}. JSON only: {"word":"...","pos":"...","def":"..."}`,
+        }],
+      }),
+    });
+    if (!res.ok) return null;
+    const data = await res.json();
+    const raw = data.choices?.[0]?.message?.content ?? '{}';
+    const parsed = JSON.parse(raw.match(/\{[\s\S]*\}/)?.[0] ?? '{}');
+    if (parsed.word) {
+      saveWordDef(word, lang, parsed);
+      return parsed;
+    }
+    return null;
+  } catch { return null; }
+}
+
+// ── DOM helpers ──────────────────────────────────────────────────────────────
+
+function svgPlay() {
+  return `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M15.536 8.464a5 5 0 010 7.072m2.828-9.9a9 9 0 010 12.728M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l4.707-4.707C10.923 3.663 12 4.109 12 5v14c0 .891-1.077 1.337-1.707.707L5.586 15z"/>
+  </svg>`;
+}
+
+function svgPause() {
+  return `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M10 9v6m4-6v6m7-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
+  </svg>`;
+}
+
+function svgGear() {
+  return `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+    <circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83 0 2 2 0 010-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 010-2.83 2 2 0 012.83 0l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 0 2 2 0 010 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z"/>
+  </svg>`;
+}
+
+function svgAudio() {
+  return `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+    <path d="M15.536 8.464a5 5 0 010 7.072m2.828-9.9a9 9 0 010 12.728M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l4.707-4.707C10.923 3.663 12 4.109 12 5v14c0 .891-1.077 1.337-1.707.707L5.586 15z"/>
+  </svg>`;
+}
+
+function svgEye() {
+  return `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+    <path d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
+  </svg>`;
+}
+
+function svgPhonetic() {
+  return `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+    <path d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/>
+  </svg>`;
+}
+
+function escape(str) {
+  return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+function makeWordsInteractive(text, lang) {
+  if (!text) return '';
+  return text.split(/(\s+)/).map(tok => {
+    if (/^\s+$/.test(tok)) return tok;
+    const clean = tok.replace(/[.,!?;:"'()[\]]/g, '');
+    if (!clean) return escape(tok);
+    return `<span class="word" data-word="${escape(clean)}" data-lang="${lang}">${escape(tok)}</span>`;
+  }).join('');
+}
+
+// ── Render: Library ──────────────────────────────────────────────────────────
+
+function renderLibrary() {
+  const books = getBooks();
+  const app = document.getElementById('app');
+
+  app.innerHTML = `
+    <header class="app-header">
+      <div class="inner">
+        <span class="header-title">📚 Storybook Library</span>
+        <button class="icon-btn" id="open-api-modal" title="API key settings">${svgGear()}</button>
+      </div>
+    </header>
+
+    <div class="library-wrap">
+      <div class="search-wrap">
+        <svg class="search-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/>
+        </svg>
+        <input
+          type="text"
+          id="gutenberg-search"
+          placeholder="Search Project Gutenberg…"
+          value="${escape(state.searchQuery)}"
+          autocomplete="off"
+        >
+        <div class="search-spinner" id="search-spinner" style="display:none">
+          <div class="spinner spinner-sm"></div>
+        </div>
+        <div class="search-dropdown" id="search-dropdown" style="display:none"></div>
+      </div>
+
+      <div class="book-grid">
+        ${books.length === 0
+          ? `<div class="empty-library"><p>Your library is empty.</p><p style="font-size:.85rem; margin-top:8px;">Search Gutenberg above to add books, or download a classic below.</p></div>`
+          : books.map(b => bookCardHTML(b)).join('')
+        }
+      </div>
+
+      ${books.length === 0 ? `
+        <div style="margin-top:28px;">
+          <p style="text-align:center; color:#6b7280; font-size:.85rem; margin-bottom:14px;">Popular classics to get you started:</p>
+          <div class="book-grid">
+            ${TOP_BOOKS.slice(0, 6).map(b => topBookCardHTML(b)).join('')}
+          </div>
+        </div>
+      ` : ''}
+    </div>
+  `;
+
+  // Bind search
+  const searchInput = document.getElementById('gutenberg-search');
+  searchInput.addEventListener('input', e => {
+    state.searchQuery = e.target.value;
+    clearTimeout(state.searchDebounce);
+    state.searchDebounce = setTimeout(() => performSearch(state.searchQuery), 350);
+  });
+  searchInput.addEventListener('focus', () => {
+    if (state.searchResults.length > 0) showSearchDropdown();
+  });
+  document.addEventListener('click', hideSearchDropdownOnClickOutside, { once: false });
+
+  document.getElementById('open-api-modal').addEventListener('click', showApiKeyModal);
+}
+
+function bookCardHTML(b) {
+  return `
+    <button class="book-card" data-book-id="${escape(b.id)}" data-action="open-book">
+      ${b.coverUrl
+        ? `<img class="book-cover" src="${escape(b.coverUrl)}" alt="${escape(b.title)}" loading="lazy" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">`
+        : ''
+      }
+      <div class="book-cover-placeholder" style="${b.coverUrl ? 'display:none' : ''}">
+        <div class="book-icon">📖</div>
+        <div class="book-placeholder-title">${escape(b.title)}</div>
+      </div>
+      <div class="book-info">
+        <p class="book-title">${escape(b.title)}</p>
+        <p class="book-author">${escape(b.author)}</p>
+      </div>
+    </button>
+  `;
+}
+
+function topBookCardHTML(b) {
+  const coverUrl = `https://www.gutenberg.org/cache/epub/${b.id}/pg${b.id}.cover.medium.jpg`;
+  return `
+    <button class="book-card" data-book-id="${escape(b.id)}" data-action="download-top" title="Download ${escape(b.title)}">
+      <img class="book-cover" src="${escape(coverUrl)}" alt="${escape(b.title)}" loading="lazy"
+        onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
+      <div class="book-cover-placeholder" style="display:none">
+        <div class="book-icon">📚</div>
+        <div class="book-placeholder-title">${escape(b.title)}</div>
+      </div>
+      <div class="book-info">
+        <p class="book-title">${escape(b.title)}</p>
+        <p class="book-author">${escape(b.author)}</p>
+        <p style="font-size:.7rem; color:#3b82f6; margin:4px 0 0;">+ Download</p>
+      </div>
+    </button>
+  `;
+}
+
+async function performSearch(query) {
+  if (!query || query.trim().length < 2) {
+    state.searchResults = [];
+    hideSearchDropdown();
+    return;
+  }
+  state.searchLoading = true;
+  state.searchError = null;
+  showSearchDropdown();
+  renderSearchDropdown();
+
+  try {
+    const results = await searchGutenberg(query.trim());
+    const existing = new Set(getBooks().map(b => b.id));
+    state.searchResults = results.filter(r => !existing.has(r.id));
+    state.searchError = null;
+  } catch (err) {
+    state.searchError = 'Search failed. Please try again.';
+    state.searchResults = [];
+  } finally {
+    state.searchLoading = false;
+    renderSearchDropdown();
+  }
+}
+
+function renderSearchDropdown() {
+  const dd = document.getElementById('search-dropdown');
+  const spinner = document.getElementById('search-spinner');
+  if (!dd) return;
+
+  if (spinner) spinner.style.display = state.searchLoading ? '' : 'none';
+
+  if (state.searchLoading && state.searchResults.length === 0) {
+    dd.innerHTML = `<div class="search-empty"><div class="spinner"></div></div>`;
+    dd.style.display = '';
+    return;
+  }
+  if (!state.searchLoading && state.searchResults.length === 0 && !state.searchError) {
+    dd.innerHTML = `<div class="search-empty">No results for "${escape(state.searchQuery)}"</div>`;
+    dd.style.display = '';
+    return;
+  }
+  if (state.searchError) {
+    dd.innerHTML = `<div class="search-error">${escape(state.searchError)}</div>`;
+    dd.style.display = '';
+    return;
+  }
+
+  dd.innerHTML = state.searchResults.slice(0, 10).map(b => `
+    <button class="search-result-item" data-action="add-from-search" data-idx="${state.searchResults.indexOf(b)}">
+      <img class="result-cover" src="${escape(b.coverUrl)}" alt="" loading="lazy" onerror="this.style.background='#e5e7eb'">
+      <div class="result-info">
+        <p class="result-title">${escape(b.title)}</p>
+        <p class="result-author">by ${escape(b.author)}</p>
+      </div>
+      <span class="result-add">+</span>
+    </button>
+  `).join('');
+  dd.style.display = '';
+}
+
+function showSearchDropdown() {
+  const dd = document.getElementById('search-dropdown');
+  if (dd) dd.style.display = '';
+}
+
+function hideSearchDropdown() {
+  const dd = document.getElementById('search-dropdown');
+  if (dd) dd.style.display = 'none';
+}
+
+function hideSearchDropdownOnClickOutside(e) {
+  const wrap = document.querySelector('.search-wrap');
+  if (wrap && !wrap.contains(e.target)) hideSearchDropdown();
+}
+
+async function addFromSearch(idx) {
+  const book = state.searchResults[idx];
+  if (!book) return;
+
+  // Show download indicator in the dropdown
+  const dd = document.getElementById('search-dropdown');
+  if (dd) {
+    const item = dd.querySelectorAll('.search-result-item')[idx];
+    if (item) {
+      item.innerHTML = `
+        <div class="download-progress">
+          <div class="spinner spinner-sm"></div>
+          Downloading "${escape(book.title)}"…
+        </div>
+      `;
+    }
+  }
+
+  try {
+    await downloadBook(book);
+    hideSearchDropdown();
+    state.searchQuery = '';
+    state.searchResults = [];
+    renderLibrary();
+  } catch (err) {
+    state.searchError = `Download failed: ${err.message}`;
+    renderSearchDropdown();
+  }
+}
+
+async function downloadTopBook(bookId) {
+  const meta = TOP_BOOKS.find(b => b.id === bookId);
+  if (!meta) return;
+  const coverUrl = `https://www.gutenberg.org/cache/epub/${bookId}/pg${bookId}.cover.medium.jpg`;
+
+  // Find text URL via Gutendex
+  const btn = document.querySelector(`[data-book-id="${bookId}"][data-action="download-top"]`);
+  if (btn) {
+    btn.querySelector('p:last-child').textContent = 'Downloading…';
+    btn.disabled = true;
+  }
+
+  try {
+    const results = await searchGutenberg(meta.title);
+    const found = results.find(r => r.id === bookId) || results[0];
+    if (!found) throw new Error('Not found on Gutendex');
+    found.coverUrl = coverUrl;
+    await downloadBook(found);
+    renderLibrary();
+  } catch (err) {
+    if (btn) {
+      btn.querySelector('p:last-child').textContent = `Failed: ${err.message}`;
+      btn.disabled = false;
+    }
+  }
+}
+
+// ── Render: Reader ───────────────────────────────────────────────────────────
+
+function renderReader(bookId) {
+  const books = getBooks();
+  const book = books.find(b => b.id === bookId);
+  if (!book) {
+    document.getElementById('app').innerHTML = `
+      <div style="padding:40px; text-align:center;">
+        <p>Book not found in your library.</p>
+        <a href="#library" style="color:#3b82f6;">← Back to Library</a>
+      </div>`;
+    return;
+  }
+
+  // Use saved page position when switching books or loading fresh
+  if (!state.currentBook || state.currentBook.id !== bookId) {
+    const pos = getBookPos(bookId);
+    state.currentPage = pos.page || 0;
+  }
+
+  state.currentBook = book;
+  const text = getBookText(bookId);
+  if (!text) {
+    document.getElementById('app').innerHTML = `<div style="padding:40px; text-align:center;">
+      <p>Book text not found. Please re-download the book.</p>
+      <a href="#library">← Back</a></div>`;
+    return;
+  }
+
+  const parsed = parseBookPage(text, state.currentPage);
+  state.totalPages = parsed.totalPages;
+  state.currentPage = parsed.page;
+  state.paragraphs = parsed.paragraphs;
+
+  renderReaderContent();
+  loadTranslationsForPage();
+}
+
+function renderReaderContent() {
+  const book = state.currentBook;
+  const app = document.getElementById('app');
+
+  const langFlagBtns = Object.entries(LANGUAGES).map(([code, info]) => `
+    <button class="lang-flag-btn ${state.selectedLanguages.includes(code) ? 'active' : ''}"
+      data-action="toggle-lang" data-lang="${code}" title="${info.name}">${info.flag}</button>
+  `).join('');
+
+  const speedOptions = [0.5, 0.75, 1.0, 1.25, 1.5, 1.75, 2.0].map(s =>
+    `<option value="${s}" ${state.audioSpeed === s ? 'selected' : ''}>${s === 1.0 ? '1x' : s + 'x'}</option>`
+  ).join('');
+
+  const contentHTML = state.readingMode === 'sentence'
+    ? renderSentenceMode()
+    : renderParagraphMode();
+
+  app.innerHTML = `
+    <header class="app-header">
+      <div class="inner">
+        <a href="#library" class="back-link" id="back-to-library">← Library</a>
+        <div style="flex:1; min-width:0;">
+          <div class="header-title">${escape(book.title)}</div>
+          <div class="header-sub">${escape(book.author)}</div>
+        </div>
+        <div class="header-controls">
+          <div class="mode-pills">
+            <button class="mode-pill ${state.readingMode === 'sentence' ? 'active' : ''}"
+              data-action="set-mode" data-mode="sentence">Sentence</button>
+            <button class="mode-pill ${state.readingMode === 'paragraph' ? 'active' : ''}"
+              data-action="set-mode" data-mode="paragraph">Paragraph</button>
+          </div>
+          ${langFlagBtns}
+          <button class="icon-btn ${state.phoneticEnabled ? 'active-green' : ''}"
+            data-action="toggle-phonetic" title="Phonetic guide">${svgPhonetic()}</button>
+          <button class="icon-btn ${state.audioEnabled ? 'active-green' : ''}"
+            data-action="toggle-audio" title="Audio TTS">${svgAudio()}</button>
+          ${state.audioEnabled ? `<select class="speed-select" id="speed-select">${speedOptions}</select>` : ''}
+          <button class="icon-btn ${state.englishBlurred ? 'active-purple' : ''}"
+            data-action="toggle-blur" title="Blur English">${svgEye()}</button>
+          <button class="icon-btn" id="open-api-modal" title="API key">${svgGear()}</button>
+        </div>
+      </div>
+    </header>
+
+    <div class="reader-body" id="reader-content">
+      ${state.loadingTranslations
+        ? `<div class="trans-loading"><div class="spinner"></div><p>Loading translations…</p></div>`
+        : contentHTML}
+    </div>
+
+    <div class="pagination-bar">
+      <div class="pagination-inner">
+        <div class="page-slider-row">
+          <span class="page-label">1</span>
+          <input type="range" class="page-slider" id="page-slider"
+            min="0" max="${state.totalPages - 1}" value="${state.currentPage}">
+          <span class="page-label">${state.totalPages}</span>
+        </div>
+        <div class="page-nav-row">
+          <button class="page-nav-btn" data-action="prev-page" ${state.currentPage <= 0 ? 'disabled' : ''}>← Prev</button>
+          <span class="page-info">Page ${state.currentPage + 1} of ${state.totalPages}</span>
+          <button class="page-nav-btn" data-action="next-page" ${state.currentPage >= state.totalPages - 1 ? 'disabled' : ''}>Next →</button>
+        </div>
+      </div>
+    </div>
+  `;
+
+  // Bind speed selector
+  const speedSel = document.getElementById('speed-select');
+  if (speedSel) {
+    speedSel.addEventListener('change', e => {
+      state.audioSpeed = parseFloat(e.target.value);
+      savePrefs();
+    });
+  }
+
+  // Bind page slider
+  const slider = document.getElementById('page-slider');
+  if (slider) {
+    slider.addEventListener('change', e => {
+      navigateToPage(parseInt(e.target.value));
+    });
+  }
+
+  document.getElementById('open-api-modal')?.addEventListener('click', showApiKeyModal);
+}
+
+function renderSentenceMode() {
+  if (state.paragraphs.length === 0) return '<p style="text-align:center;color:#9ca3af;padding:40px;">No content on this page.</p>';
+
+  return state.paragraphs.map(para => `
+    <div class="para-block">
+      ${para.sentences.map((sentence, sIdx) => {
+        return `
+          <div class="sentence-group" data-para="${para.id}" data-sidx="${sIdx}">
+            <div class="sentence-row">
+              <span class="lang-badge badge-en">ENG</span>
+              <p class="sentence-text ${state.englishBlurred ? 'blurred' : ''}" title="${state.englishBlurred ? 'Hover to reveal' : ''}">${escape(sentence)}</p>
+            </div>
+            ${state.selectedLanguages.map(lang => {
+              const cached = getTranslation(state.currentBook.id, para.id, sIdx, lang);
+              const langInfo = LANGUAGES[lang];
+              const audioKey = `${para.id}-${sIdx}-${lang}`;
+              const isPlaying = state.currentlyPlayingId === audioKey;
+              return `
+                <div class="sentence-row">
+                  <span class="lang-badge badge-${lang}">${langInfo?.code ?? lang.toUpperCase()}</span>
+                  <div class="trans-block">
+                    <p class="trans-text" id="trans-${para.id}-${sIdx}-${lang}">
+                      ${cached ? makeWordsInteractive(cached.translatedText, lang)
+                               : `<span id="spinner-${para.id}-${sIdx}-${lang}" class="spinner spinner-sm"></span>`}
+                    </p>
+                    <p class="phonetic-text" id="phonetic-${para.id}-${sIdx}-${lang}"
+                      style="${state.phoneticEnabled && cached?.phoneticText ? '' : 'display:none'}">
+                      ${state.phoneticEnabled && cached?.phoneticText ? escape(cached.phoneticText) : ''}
+                    </p>
+                  </div>
+                  ${state.audioEnabled ? `
+                    <button class="audio-btn ${isPlaying ? 'playing' : ''}"
+                      data-action="play-audio"
+                      data-audio-key="${audioKey}"
+                      data-lang="${lang}"
+                      data-para="${para.id}"
+                      data-sidx="${sIdx}"
+                      title="${isPlaying ? 'Stop' : 'Play'}"
+                    >${isPlaying ? svgPause() : svgPlay()}</button>
+                  ` : ''}
+                </div>
+              `;
+            }).join('')}
+          </div>
+        `;
+      }).join('')}
+    </div>
+  `).join('');
+}
+
+function renderParagraphMode() {
+  if (state.paragraphs.length === 0) return '<p style="text-align:center;color:#9ca3af;padding:40px;">No content on this page.</p>';
+  const lang = state.selectedLanguages[0];
+  const langInfo = lang ? LANGUAGES[lang] : null;
+
+  return state.paragraphs.map(para => `
+    <div class="para-block">
+      <div class="para-grid">
+        <div class="para-col-en">
+          <span class="para-col-header badge-en">ENGLISH</span>
+          ${para.sentences.map((sentence, sIdx) => `
+            <span class="para-sentence ${state.englishBlurred ? 'blurred' : ''}"
+              data-para="${para.id}" data-sidx="${sIdx}"
+              title="${state.englishBlurred ? 'Hover to reveal' : ''}">${escape(sentence)} </span>
+          `).join('')}
+        </div>
+        <div>
+          ${lang ? `
+            <span class="para-col-header badge-${lang}">${langInfo?.name?.toUpperCase() ?? lang.toUpperCase()}</span>
+            ${para.sentences.map((_, sIdx) => {
+              const cached = getTranslation(state.currentBook.id, para.id, sIdx, lang);
+              return `
+                <span class="para-sentence" data-para="${para.id}" data-sidx="${sIdx}">
+                  <span id="trans-${para.id}-${sIdx}-${lang}">
+                    ${cached ? makeWordsInteractive(cached.translatedText, lang)
+                             : `<span id="spinner-${para.id}-${sIdx}-${lang}" class="spinner spinner-sm"></span>`}
+                  </span>
+                  ${state.phoneticEnabled && cached?.phoneticText
+                    ? `<span class="phonetic-text" id="phonetic-${para.id}-${sIdx}-${lang}">${escape(cached.phoneticText)}</span>`
+                    : `<span class="phonetic-text" id="phonetic-${para.id}-${sIdx}-${lang}" style="display:none"></span>`
+                  }
+                </span>
+              `;
+            }).join('')}
+          ` : '<p style="color:#9ca3af; font-size:.9rem;">No language selected</p>'}
+        </div>
+      </div>
+    </div>
+  `).join('');
+}
+
+async function loadTranslationsForPage() {
+  if (!state.currentBook || state.selectedLanguages.length === 0) return;
+
+  const sentences = [];
+  for (const para of state.paragraphs) {
+    para.sentences.forEach((text, sIdx) => {
+      sentences.push({ paraId: para.id, sIdx, text });
+    });
+  }
+
+  for (const lang of state.selectedLanguages) {
+    await translateBatch(sentences, lang, state.currentBook.id, state.paragraphs);
+  }
+}
+
+function navigateToPage(page) {
+  if (!state.currentBook) return;
+  stopAudio();
+  const text = getBookText(state.currentBook.id);
+  const parsed = parseBookPage(text, page);
+  state.currentPage = parsed.page;
+  state.totalPages = parsed.totalPages;
+  state.paragraphs = parsed.paragraphs;
+  saveBookPos(state.currentBook.id, state.currentPage);
+  renderReaderContent();
+  loadTranslationsForPage();
+}
+
+// ── Modals ───────────────────────────────────────────────────────────────────
+
+function showApiKeyModal() {
+  const modal = document.getElementById('api-key-modal');
+  const input = document.getElementById('api-key-input');
+  const err = document.getElementById('api-key-error');
+  input.value = getApiKey();
+  err.style.display = 'none';
+  modal.classList.remove('hidden');
+  setTimeout(() => input.focus(), 50);
+}
+
+function hideApiKeyModal() {
+  document.getElementById('api-key-modal').classList.add('hidden');
+}
+
+function saveApiKey() {
+  const input = document.getElementById('api-key-input');
+  const err = document.getElementById('api-key-error');
+  const key = input.value.trim();
+  if (!key.startsWith('sk-')) {
+    err.textContent = 'API key must start with "sk-"';
+    err.style.display = '';
+    return;
+  }
+  setApiKey(key);
+  hideApiKeyModal();
+}
+
+let pendingOpenBookId = null;
+
+function showOptionsModal(bookId) {
+  pendingOpenBookId = bookId;
+  const modal = document.getElementById('options-modal');
+  const books = getBooks();
+  const book = books.find(b => b.id === bookId);
+  document.getElementById('options-modal-title').textContent =
+    book ? `Reading "${book.title}"` : 'Reading Options';
+
+  // Set mode from prefs
+  document.getElementById('opt-mode-sentence').checked = state.readingMode === 'sentence';
+  document.getElementById('opt-mode-paragraph').checked = state.readingMode === 'paragraph';
+
+  // Render language chips
+  const container = document.getElementById('opt-lang-chips');
+  container.innerHTML = Object.entries(LANGUAGES).map(([code, info]) => `
+    <button class="lang-chip ${state.selectedLanguages.includes(code) ? 'selected' : ''}"
+      data-lang="${code}">${info.flag} ${info.name}</button>
+  `).join('');
+  container.querySelectorAll('.lang-chip').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const code = btn.dataset.lang;
+      const isPara = document.getElementById('opt-mode-paragraph').checked;
+      if (isPara) {
+        // Only one language in paragraph mode
+        container.querySelectorAll('.lang-chip').forEach(b => b.classList.remove('selected'));
+        btn.classList.add('selected');
+      } else {
+        btn.classList.toggle('selected');
+        // Ensure at least one remains selected
+        const anySelected = container.querySelectorAll('.lang-chip.selected').length;
+        if (anySelected === 0) btn.classList.add('selected');
+      }
+    });
+  });
+
+  updateOptionsHint();
+  modal.classList.remove('hidden');
+}
+
+function updateOptionsHint() {
+  const isPara = document.getElementById('opt-mode-paragraph').checked;
+  document.getElementById('opt-lang-hint').textContent = isPara
+    ? 'Only one language allowed in paragraph mode'
+    : 'Select one or more languages for sentence mode';
+}
+
+function hideOptionsModal() {
+  document.getElementById('options-modal').classList.add('hidden');
+}
+
+function startReading() {
+  const isPara = document.getElementById('opt-mode-paragraph').checked;
+  state.readingMode = isPara ? 'paragraph' : 'sentence';
+
+  const selected = Array.from(
+    document.querySelectorAll('#opt-lang-chips .lang-chip.selected')
+  ).map(b => b.dataset.lang);
+
+  state.selectedLanguages = selected.length > 0 ? selected : ['fr'];
+  if (isPara && state.selectedLanguages.length > 1) {
+    state.selectedLanguages = [state.selectedLanguages[0]];
+  }
+
+  savePrefs();
+  hideOptionsModal();
+
+  if (pendingOpenBookId) {
+    // Load saved page
+    const pos = getBookPos(pendingOpenBookId);
+    state.currentPage = pos.page || 0;
+    window.location.hash = `#reader/${pendingOpenBookId}`;
+  }
+}
+
+// ── Tooltip ──────────────────────────────────────────────────────────────────
+
+let tooltipTimeout = null;
+
+async function showWordTooltip(e, word, lang) {
+  clearTimeout(tooltipTimeout);
+  const tt = document.getElementById('tooltip');
+  tt.classList.add('hidden');
+
+  const def = await fetchWordDef(word, lang);
+  if (!def) return;
+
+  document.getElementById('tooltip-word').textContent = def.word || word;
+  document.getElementById('tooltip-pos').textContent = def.pos || '';
+  document.getElementById('tooltip-def').textContent = def.def || '';
+
+  // Position near the element
+  const rect = e.target.getBoundingClientRect();
+  const ttLeft = Math.max(8, Math.min(rect.left + rect.width / 2 - 110, window.innerWidth - 228));
+  const ttTop = Math.max(8, rect.top - 10 - 80);
+
+  tt.style.left = ttLeft + 'px';
+  tt.style.top = ttTop + 'px';
+  tt.classList.remove('hidden');
+
+  tooltipTimeout = setTimeout(() => tt.classList.add('hidden'), 4000);
+}
+
+function hideTooltip() {
+  clearTimeout(tooltipTimeout);
+  document.getElementById('tooltip').classList.add('hidden');
+}
+
+// ── Router ───────────────────────────────────────────────────────────────────
+
+function render() {
+  const hash = window.location.hash.slice(1) || 'library';
+  stopAudio();
+
+  if (hash.startsWith('reader/')) {
+    const bookId = hash.slice('reader/'.length);
+    renderReader(bookId);
+  } else {
+    state.currentBook = null;
+    renderLibrary();
+  }
+
+  if (!getApiKey()) showApiKeyModal();
+}
+
+// ── Event delegation ─────────────────────────────────────────────────────────
+
+document.getElementById('app').addEventListener('click', async e => {
+  const target = e.target.closest('[data-action]');
+  if (!target) {
+    // Check for word tooltip
+    const word = e.target.closest('.word');
+    if (word) {
+      const w = word.dataset.word;
+      const l = word.dataset.lang;
+      if (w && l) showWordTooltip(e, w, l);
+    }
+    return;
+  }
+
+  const action = target.dataset.action;
+
+  if (action === 'open-book') {
+    const bookId = target.dataset.bookId;
+    showOptionsModal(bookId);
+  }
+
+  else if (action === 'download-top') {
+    const bookId = target.dataset.bookId;
+    await downloadTopBook(bookId);
+  }
+
+  else if (action === 'add-from-search') {
+    const idx = parseInt(target.dataset.idx);
+    await addFromSearch(idx);
+  }
+
+  else if (action === 'toggle-lang') {
+    const lang = target.dataset.lang;
+    const idx = state.selectedLanguages.indexOf(lang);
+    if (state.readingMode === 'paragraph') {
+      state.selectedLanguages = [lang];
+    } else {
+      if (idx > -1) {
+        if (state.selectedLanguages.length > 1) {
+          state.selectedLanguages = state.selectedLanguages.filter(l => l !== lang);
+        }
+      } else {
+        state.selectedLanguages = [...state.selectedLanguages, lang];
+      }
+    }
+    savePrefs();
+    if (state.currentBook) renderReaderContent();
+    loadTranslationsForPage();
+  }
+
+  else if (action === 'set-mode') {
+    state.readingMode = target.dataset.mode;
+    if (state.readingMode === 'paragraph' && state.selectedLanguages.length > 1) {
+      state.selectedLanguages = [state.selectedLanguages[0]];
+    }
+    savePrefs();
+    if (state.currentBook) renderReaderContent();
+    loadTranslationsForPage();
+  }
+
+  else if (action === 'toggle-phonetic') {
+    state.phoneticEnabled = !state.phoneticEnabled;
+    savePrefs();
+    if (state.currentBook) {
+      renderReaderContent();
+      loadTranslationsForPage();
+    }
+  }
+
+  else if (action === 'toggle-audio') {
+    state.audioEnabled = !state.audioEnabled;
+    if (!state.audioEnabled) stopAudio();
+    savePrefs();
+    if (state.currentBook) renderReaderContent();
+  }
+
+  else if (action === 'toggle-blur') {
+    state.englishBlurred = !state.englishBlurred;
+    savePrefs();
+    if (state.currentBook) renderReaderContent();
+  }
+
+  else if (action === 'play-audio') {
+    e.stopPropagation();
+    const audioKey = target.dataset.audioKey;
+    const lang = target.dataset.lang;
+    const paraId = target.dataset.para;
+    const sIdx = parseInt(target.dataset.sidx);
+    const cached = getTranslation(state.currentBook.id, paraId, sIdx, lang);
+    if (cached?.translatedText) {
+      await playAudio(cached.translatedText, audioKey);
+    }
+  }
+
+  else if (action === 'prev-page') {
+    if (state.currentPage > 0) navigateToPage(state.currentPage - 1);
+  }
+
+  else if (action === 'next-page') {
+    if (state.currentPage < state.totalPages - 1) navigateToPage(state.currentPage + 1);
+  }
+});
+
+// ── Modal event listeners ────────────────────────────────────────────────────
+
+document.getElementById('api-key-save').addEventListener('click', saveApiKey);
+document.getElementById('api-key-input').addEventListener('keydown', e => {
+  if (e.key === 'Enter') saveApiKey();
+});
+document.getElementById('api-modal-close').addEventListener('click', hideApiKeyModal);
+document.getElementById('api-key-modal').addEventListener('click', e => {
+  if (e.target === e.currentTarget) hideApiKeyModal();
+});
+
+document.getElementById('options-start-btn').addEventListener('click', startReading);
+document.getElementById('options-cancel-btn').addEventListener('click', hideOptionsModal);
+document.getElementById('options-modal-close').addEventListener('click', hideOptionsModal);
+document.getElementById('options-modal').addEventListener('click', e => {
+  if (e.target === e.currentTarget) hideOptionsModal();
+});
+
+// Reading mode radio buttons update hint
+document.querySelectorAll('input[name="opt-mode"]').forEach(radio => {
+  radio.addEventListener('change', () => {
+    const isPara = document.getElementById('opt-mode-paragraph').checked;
+    if (isPara) {
+      // Keep only first selected
+      const chips = document.querySelectorAll('#opt-lang-chips .lang-chip.selected');
+      if (chips.length > 1) {
+        chips.forEach((c, i) => { if (i > 0) c.classList.remove('selected'); });
+      }
+    }
+    updateOptionsHint();
+  });
+});
+
+// Global click: hide tooltip
+document.addEventListener('click', e => {
+  if (!e.target.closest('.word') && !e.target.closest('#tooltip')) hideTooltip();
+});
+
+// ── Init ─────────────────────────────────────────────────────────────────────
+
+function init() {
+  // Load prefs
+  const prefs = getPrefs();
+  if (prefs.selectedLanguages?.length) state.selectedLanguages = prefs.selectedLanguages;
+  if (prefs.readingMode) state.readingMode = prefs.readingMode;
+  if (prefs.audioSpeed) state.audioSpeed = prefs.audioSpeed;
+  if (typeof prefs.phoneticEnabled === 'boolean') state.phoneticEnabled = prefs.phoneticEnabled;
+  if (typeof prefs.englishBlurred === 'boolean') state.englishBlurred = prefs.englishBlurred;
+
+  window.addEventListener('hashchange', render);
+  render();
+}
+
+init();
+
+</script>
+</body>
+</html>
