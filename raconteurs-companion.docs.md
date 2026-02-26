@@ -1,0 +1,3 @@
+Browse a curated collection of sophisticated jokes organized by category, including Jewish humor, wordplay, dark wit, and classic stories from raconteurs throughout history. Search through the collection, save your favorites to local storage, or discover random jokes with the "Surprise Me" button. The application also integrates with JokeAPI to supplement the curated jokes with additional online results when you search for specific topics.
+
+<!-- Generated from commit: d3c1fc922477c0775e77a0cf23691bb000251b9e -->

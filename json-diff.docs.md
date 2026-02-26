@@ -1,0 +1,3 @@
+Compare JSON documents side by side to identify and visualize differences between objects, arrays, and property values. The tool provides character-level diffing for string modifications, color-coded output to distinguish added, removed, and modified content, and supports loading example datasets to explore various comparison scenarios. Paste your JSON into both input fields and click Compare to see a detailed breakdown of all changes with a summary count.
+
+<!-- Generated from commit: d29a7058366ec6e30889ca61e238fb6f70b53792 -->

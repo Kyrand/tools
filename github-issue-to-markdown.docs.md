@@ -1,0 +1,3 @@
+Convert GitHub issues and pull requests into formatted markdown documents. Provide a GitHub Personal Access Token (optional) for access to private repositories and higher API rate limits, then paste any GitHub issue or PR URL to generate a complete markdown file with all comments and metadata. The tool automatically detects and expands embedded code references with their source snippets.
+
+<!-- Generated from commit: d29a7058366ec6e30889ca61e238fb6f70b53792 -->

@@ -1,0 +1,3 @@
+Read and practice languages using classic books from Project Gutenberg with AI-powered translations, phonetic guides, and text-to-speech pronunciation. This application provides dual reading modes—sentence-by-sentence with multiple language translations or side-by-side paragraph view—allowing learners to customize their experience with preferences for blur effects, phonetic support, and playback speed. All content and API credentials are stored locally in your browser for privacy and offline access.
+
+<!-- Generated from commit: d9d0f1203d2cd4d3c23ecb3eb28e3a81de95eb98 -->
