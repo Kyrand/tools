@@ -738,9 +738,27 @@ function findTextUrl(formats) {
 
 // ── API: Download book ───────────────────────────────────────────────────────
 
+async function fetchWithProxyFallback(url) {
+  const proxies = [
+    u => `https://corsproxy.io/?${encodeURIComponent(u)}`,
+    u => `https://api.allorigins.win/raw?url=${encodeURIComponent(u)}`,
+    u => `https://thingproxy.freeboard.io/fetch/${u}`,
+  ];
+  let lastErr;
+  for (const makeProxyUrl of proxies) {
+    try {
+      const res = await fetch(makeProxyUrl(url));
+      if (res.ok) return res;
+      lastErr = new Error(`HTTP ${res.status} from proxy`);
+    } catch (e) {
+      lastErr = e;
+    }
+  }
+  throw lastErr;
+}
+
 async function downloadBook(bookResult) {
-  const proxyUrl = `https://corsproxy.io/?${encodeURIComponent(bookResult.textUrl)}`;
-  const res = await fetch(proxyUrl);
+  const res = await fetchWithProxyFallback(bookResult.textUrl);
   if (!res.ok) throw new Error(`Download failed: ${res.status}`);
   const rawText = await res.text();
   if (rawText.length < 500) throw new Error('Downloaded text too short');
