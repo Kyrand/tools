@@ -742,6 +742,7 @@ function findTextUrl(formats) {
 
 async function fetchWithProxyFallback(url) {
   const proxies = [
+    u => `https://storybook.kyran-dc2.workers.dev/?url=${encodeURIComponent(u)}`,
     u => `https://corsproxy.io/?${encodeURIComponent(u)}`,
     u => `https://api.allorigins.win/raw?url=${encodeURIComponent(u)}`,
     u => `https://thingproxy.freeboard.io/fetch/${u}`,
