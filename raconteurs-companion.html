@@ -1,0 +1,550 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>The Raconteur's Companion — Sophisticated Jokes for Witty People</title>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Source+Serif+4:ital,wght@0,300;0,400;0,600;1,300;1,400&display=swap" rel="stylesheet">
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --ink: #1a1612; --cream: #f5f0e8; --parchment: #ede6d8;
+      --gold: #b8860b; --gold-light: #d4a843; --burgundy: #6b2737;
+      --warm-gray: #8a7e72; --card-bg: #faf7f2; --border: #d4cab8;
+      --shadow: rgba(26,22,18,0.08);
+    }
+    body { font-family: 'Source Serif 4', Georgia, serif; background: var(--cream); color: var(--ink); font-size: 16px; line-height: 1.7; min-height: 100vh; }
+    body::before { content: ''; position: fixed; inset: 0; background: repeating-linear-gradient(0deg,transparent,transparent 3px,rgba(0,0,0,0.008) 3px,rgba(0,0,0,0.008) 4px); pointer-events: none; z-index: 0; }
+    header { text-align: center; padding: 3rem 1.5rem 2rem; position: relative; z-index: 1; }
+    header::after { content: '✦'; display: block; font-size: 1.2rem; color: var(--gold); margin-top: 1.2rem; letter-spacing: 1em; }
+    h1 { font-family: 'Playfair Display', Georgia, serif; font-size: clamp(2rem,5vw,3.2rem); font-weight: 700; color: var(--ink); letter-spacing: -0.02em; line-height: 1.2; }
+    h1 em { font-style: italic; color: var(--burgundy); }
+    .subtitle { font-size: 1rem; color: var(--warm-gray); font-weight: 300; font-style: italic; margin-top: 0.5rem; }
+    .container { max-width: 720px; margin: 0 auto; padding: 0 1.5rem 4rem; position: relative; z-index: 1; }
+    .controls { display: flex; flex-wrap: wrap; gap: 0.75rem; margin-bottom: 2rem; align-items: stretch; }
+    .search-wrap { flex: 1; min-width: 200px; position: relative; }
+    .search-wrap input { width: 100%; padding: 0.75rem 1rem 0.75rem 2.5rem; border: 1px solid var(--border); background: var(--card-bg); border-radius: 4px; font-family: 'Source Serif 4', Georgia, serif; font-size: 16px; color: var(--ink); transition: border-color 0.2s; }
+    .search-wrap input:focus { outline: none; border-color: var(--gold); }
+    .search-wrap::before { content: '⌕'; position: absolute; left: 0.85rem; top: 50%; transform: translateY(-50%); font-size: 1.1rem; color: var(--warm-gray); pointer-events: none; }
+    .btn { padding: 0.75rem 1.25rem; border: 1px solid var(--border); background: var(--card-bg); border-radius: 4px; font-family: 'Source Serif 4', Georgia, serif; font-size: 0.9rem; color: var(--ink); cursor: pointer; transition: all 0.2s; white-space: nowrap; }
+    .btn:hover { background: var(--ink); color: var(--cream); border-color: var(--ink); }
+    .btn.primary { background: var(--burgundy); color: var(--cream); border-color: var(--burgundy); font-weight: 600; }
+    .btn.primary:hover { background: #4a1a26; border-color: #4a1a26; }
+    .btn.gold { background: transparent; color: var(--gold); border-color: var(--gold); }
+    .btn.gold:hover { background: var(--gold); color: var(--cream); }
+    .btn.gold.active { background: var(--gold); color: var(--cream); }
+    .btn.api-search { background: transparent; color: var(--sage); border-color: var(--sage); font-size: 0.85rem; }
+    .btn.api-search:hover { background: var(--sage); color: var(--cream); border-color: var(--sage); }
+    .btn.api-search.loading { opacity: 0.6; pointer-events: none; }
+    .api-badge { display: inline-block; font-size: 0.65rem; background: var(--sage); color: var(--cream); padding: 0.15rem 0.45rem; border-radius: 3px; margin-left: 0.4rem; vertical-align: middle; letter-spacing: 0.04em; text-transform: uppercase; }
+    .api-divider { text-align: center; color: var(--warm-gray); font-size: 0.82rem; font-style: italic; margin: 1.5rem 0 1rem; padding: 0.5rem; border-top: 1px dashed var(--border); }
+    .categories { display: flex; flex-wrap: wrap; gap: 0.5rem; margin-bottom: 2rem; }
+    .cat-pill { padding: 0.4rem 0.9rem; border: 1px solid var(--border); background: transparent; border-radius: 2rem; font-family: 'Source Serif 4', Georgia, serif; font-size: 0.82rem; color: var(--warm-gray); cursor: pointer; transition: all 0.2s; letter-spacing: 0.02em; }
+    .cat-pill:hover { border-color: var(--gold); color: var(--gold); }
+    .cat-pill.active { background: var(--ink); color: var(--cream); border-color: var(--ink); }
+    .cat-pill .count { font-size: 0.72rem; opacity: 0.6; margin-left: 0.2rem; }
+    .joke-card { background: var(--card-bg); border: 1px solid var(--border); border-radius: 6px; padding: 1.75rem 1.75rem 1.25rem; margin-bottom: 1.25rem; position: relative; transition: box-shadow 0.3s; animation: fadeUp 0.35s ease both; }
+    .joke-card:hover { box-shadow: 0 4px 20px var(--shadow); }
+    .joke-card.featured { border-left: 3px solid var(--gold); }
+    .joke-meta { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; }
+    .joke-category { font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.12em; color: var(--gold); font-weight: 600; }
+    .joke-source { font-size: 0.72rem; color: var(--warm-gray); font-style: italic; }
+    .joke-text { font-size: 1.05rem; line-height: 1.75; }
+    .joke-text .setup { display: block; margin-bottom: 0.75rem; }
+    .joke-text .delivery { display: block; font-style: italic; color: var(--burgundy); padding-left: 1.25rem; border-left: 2px solid var(--gold-light); }
+    .joke-actions { display: flex; gap: 0.5rem; margin-top: 1rem; padding-top: 0.75rem; border-top: 1px solid var(--border); }
+    .joke-action-btn { padding: 0.3rem 0.6rem; border: none; background: transparent; font-size: 0.8rem; color: var(--warm-gray); cursor: pointer; border-radius: 3px; font-family: 'Source Serif 4', Georgia, serif; transition: all 0.2s; }
+    .joke-action-btn:hover { background: var(--parchment); color: var(--ink); }
+    .joke-action-btn.faved { color: var(--gold); }
+    .status { text-align: center; padding: 3rem 1rem; color: var(--warm-gray); font-style: italic; }
+    .status .emoji { font-size: 2rem; display: block; margin-bottom: 0.75rem; font-style: normal; }
+    .spinner { display: inline-block; width: 28px; height: 28px; border: 2px solid var(--border); border-top-color: var(--gold); border-radius: 50%; animation: spin 0.8s linear infinite; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    @keyframes fadeUp { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
+    .toast { position: fixed; bottom: 2rem; left: 50%; transform: translateX(-50%) translateY(100px); background: var(--ink); color: var(--cream); padding: 0.7rem 1.4rem; border-radius: 4px; font-size: 0.85rem; z-index: 1000; transition: transform 0.3s ease; pointer-events: none; max-width: 90vw; text-align: center; }
+    .toast.show { transform: translateX(-50%) translateY(0); }
+    .ornament { text-align: center; color: var(--gold); font-size: 0.8rem; letter-spacing: 0.5em; margin: 2rem 0; opacity: 0.6; }
+    .joke-count { text-align: center; font-size: 0.82rem; color: var(--warm-gray); margin-bottom: 1.5rem; font-style: italic; }
+    footer { text-align: center; padding: 2rem 1rem; color: var(--warm-gray); font-size: 0.78rem; font-style: italic; border-top: 1px solid var(--border); max-width: 720px; margin: 0 auto; }
+    footer a { color: var(--gold); text-decoration: none; }
+    @media (max-width: 540px) { header { padding: 2rem 1rem 1.5rem; } .container { padding: 0 1rem 3rem; } .joke-card { padding: 1.25rem 1.25rem 1rem; } .controls { flex-direction: column; } }
+    :focus-visible { outline: 2px solid var(--gold); outline-offset: 2px; }
+  </style>
+</head>
+<body>
+<header>
+  <h1>The <em>Raconteur's</em> Companion</h1>
+  <p class="subtitle">Sophisticated jokes for witty company</p>
+</header>
+<div class="container">
+  <div class="controls">
+    <div class="search-wrap"><input type="text" id="search" placeholder="Search jokes…" aria-label="Search jokes"></div>
+    <button class="btn api-search" id="apiSearchBtn" aria-label="Search JokeAPI online" style="display:none;">🌐 Search Online</button>
+    <button class="btn primary" id="randomBtn" aria-label="Random joke">Surprise Me</button>
+    <button class="btn gold" id="favToggle" aria-label="Show favourites">★ Favourites</button>
+  </div>
+  <div class="categories" id="categories" role="tablist" aria-label="Joke categories"></div>
+  <div class="joke-count" id="jokeCount"></div>
+  <div id="jokeList"></div>
+  <div class="ornament" id="endOrnament" style="display:none;">— ❧ —</div>
+</div>
+<div class="toast" id="toast"></div>
+<footer>Curated for the discerning raconteur · Live jokes via <a href="https://jokeapi.dev" target="_blank" rel="noopener">JokeAPI</a></footer>
+<script type="module">
+const J = "Jewish Humor", C = "Clever Observations", D = "Dark Wit", W = "Wordplay & Wit", S = "Social Satire", X = "Classic Stories";
+const CURATED=[
+// ═══ JEWISH HUMOR ═══
+{cat:J,text:"A Jewish man is shipwrecked on a desert island. Using materials he finds, he builds two synagogues. Years later, rescuers ask: 'Why two synagogues?' He points to one: 'That's the one I go to.' He points to the other: 'That's the one I wouldn't set foot in.'",featured:true,source:"Classic"},
+{cat:J,text:"A group of five Jewish women are eating lunch at a café. Their waiter nervously approaches. 'Ladies,' he says, 'is anything okay?'",featured:true,source:"Traditional"},
+{cat:J,text:"An elderly Jewish man faints and is rushed to hospital. A nurse tucks him in and says, 'Mr. Schwartzman, are you comfortable?' He replies, 'I make a living.'",source:"Classic"},
+{cat:J,text:"A grandfather takes his grandchildren to the beach. A massive wave pulls the smallest boy out to sea. He prays desperately: 'God, please bring him back!' A bigger wave deposits the boy at his feet. He looks up at the sky: 'He had a hat.'",featured:true,source:"Traditional"},
+{cat:J,text:"The census taker comes to the Goldman house. 'Does Louis Goldman live here?' 'No,' replies Goldman. 'What is your name?' 'Louis Goldman.' 'Didn't you just say Goldman doesn't live here?' Goldman sighs: 'You call this living?'",source:"Traditional"},
+{cat:J,text:"Schwartz is sitting in his room wearing only a top hat. Steinberg walks in. 'Why are you sitting here naked?' 'It's all right. Nobody comes to visit.' 'But why the hat?' 'Maybe somebody will come.'",source:"Classic Yiddish"},
+{cat:J,text:"Two old friends, Milt and Irv, go to Dodger games for fifty years. They make a pact: whoever gets to heaven first will tell the other if there's baseball. Milt dies. That night he appears in Irv's dream. 'Good news and bad news. Good news: there's baseball in heaven. Bad news: you're pitching Tuesday.'",featured:true,source:"Classic"},
+{cat:J,text:"Cohen converts to Catholicism after months of study and is invited to address the congregation at Mass. He steps to the podium: 'Fellow Goyim…'",source:"Classic"},
+{cat:J,text:"Maish and Benny walk by a church whose sign says anyone who converts gets $1,000. Maish goes in. When he returns, Benny asks, 'Did you get the thousand?' Maish shakes his head: 'Don't you people ever think of anything but money?'",source:"Traditional"},
+{cat:J,text:"A Jewish curse: 'May all your teeth fall out — except one, so you can have a toothache.'",source:"Yiddish tradition"},
+{cat:J,text:"Four Jewish ladies are having lunch in Miami. The first says, 'I'm a kleptomaniac, but I never stole from any of you.' The second: 'I'm a flirt, but I never flirted with your husbands.' The third: 'I'm a lesbian, but I never set my eye on any of you.' The fourth: 'I'm a gossip — I'd love to stay, but I gotta go make some calls.'",source:"Classic"},
+{cat:J,text:"A priest and a rabbi are old friends who like to rib each other. The priest says, 'Too bad in your line of work there's no room for advancement. I could become a bishop, a cardinal, even the Pope.' The rabbi nods. 'And from there?' 'Well… theoretically, I could become God.' 'One of our boys made it.'",featured:true,source:"Traditional"},
+{cat:J,text:"A woman on a train asks a man, 'Are you Jewish?' 'No.' She returns. 'Are you sure?' 'I'm sure.' A third time: 'Are you absolutely sure?' 'All right, I'm Jewish.' 'That's funny — you don't look Jewish.'",source:"Traditional"},
+{cat:J,text:"A Jewish telegram: 'Start worrying. Details to follow.'",featured:true,source:"Classic Yiddish"},
+{cat:J,text:"An old Jewish man is on his deathbed. He smells his favourite strudel wafting from the kitchen. With his last strength, he drags himself there and reaches for a piece. His wife slaps his hand: 'Leave it! It's for the funeral!'",source:"Traditional"},
+{cat:J,text:"Two Jews are about to be shot. One turns to the firing squad commander and demands a blindfold. His friend nudges him: 'Shh, don't make trouble.'",featured:true,source:"Classic gallows humor"},
+{cat:J,text:"Moishe walks into work looking terrible. His boss asks what happened. 'My wife told me she won't speak to me for thirty days.' 'That should make you happy!' 'It would — but today is the last day.'",source:"Traditional"},
+{cat:J,text:"A rabbi, a priest, and a minister walk into a bar. The bartender looks up: 'What is this, a joke?'",source:"Classic meta-humor"},
+{cat:J,text:"Three Jewish mothers are arguing about whose son loves her most. 'My son sends me flowers every week!' 'My son takes me to dinner every Friday!' The third smiles: 'My son goes to a psychiatrist five days a week — $200 an hour — and all he talks about is me.'",featured:true,source:"Classic"},
+{cat:J,text:"Why don't Jewish mothers drink? It interferes with their suffering.",source:"Classic"},
+{cat:J,text:"A man calls his mother in Florida. 'How are you, Mom?' 'Not good. I've been very weak.' 'Why?' 'Because I haven't eaten in 38 days.' 'Why haven't you eaten in 38 days?' 'Because I didn't want my mouth to be full in case you should call.'",source:"Traditional"},
+{cat:J,text:"The Cohens had a good marriage for sixty years. Then one night, Sheila leaned over and slapped Ken. 'What was that for?' 'Sixty years of bad sex.' Ken thought, then slapped her back. 'That was for knowing the difference.'",source:"Classic"},
+{cat:J,text:"Two beggars sit on a sidewalk in Rome — one with a cross, one with a Star of David. Everyone gives to the cross, nothing to the Star of David. A priest says, 'My friend, this is a Catholic city. Nobody will give you money with that.' As the priest walks away, the Star of David beggar turns to the other: 'Moishe, look who's trying to teach the Goldberg brothers about marketing.'",featured:true,source:"Classic"},
+{cat:J,text:"An Italian, a Frenchman, and a Jew are sentenced to thirty years in prison. Each gets one request. The Italian asks for pasta. The Frenchman asks for wine. The Jew asks for a subscription to the Wall Street Journal. Thirty years later, the Italian comes out fat, the Frenchman stumbles out drunk. The Jew comes out and says, 'So, did they ever settle that thing in the Middle East?'",source:"Classic"},
+{cat:J,text:"What's the difference between a Rottweiler and a Jewish mother? Eventually the Rottweiler lets go.",source:"Classic"},
+{cat:J,text:"A Jewish businessman is dying. He confesses to his partner: 'Hymie, I robbed the firm of $200,000. I sold the secret formula. I also had an affair with your wife.' Hymie pats his hand: 'Relax. I'm the one who poisoned you.'",featured:true,source:"Classic dark"},
+{cat:J,text:"Saul is working when he hears a booming voice from above: 'Saul, sell your business.' For weeks: 'Sell your business and go to Las Vegas.' He sells, goes to Vegas. 'Go to blackjack, put it all on one hand.' He bets everything, gets 18. Dealer shows 6. Voice says, 'Take a hit.' He gets a 4 — busted. Voice says, 'Unbelievable.'",featured:true,source:"Classic"},
+{cat:J,text:"The optimist says the glass is half full. The pessimist says half empty. The Jewish mother says, 'Why didn't you drink it all? You don't like my lemonade?'",source:"Classic"},
+{cat:J,text:"A rabbi is on his deathbed. 'Is my wife here?' 'Yes, darling.' 'My children?' 'Yes, Papa.' 'My grandchildren?' 'Yes, Zayde, we're all here.' He sits up: 'Then who's minding the store?!'",source:"Traditional"},
+{cat:J,text:"Goldberg and Silverstein, both ninety, have been friends forever. Goldberg says, 'If one of us dies first, could the other come to the funeral?' Silverstein: 'Of course — I've got nothing else to do.'",source:"Classic"},
+{cat:J,text:"Dear Dad — Univer$ity i$ great. Even though I'm making lot$ of friend$, I $till find time to $tudy. I $imply can't think of anything I need — Love, Your $on. ¶ Dear Son — I kNOw that astroNOmy, ecoNOmics and oceaNOgraphy are eNOugh to keep you busy. Do NOt forget that the pursuit of kNOwledge is a NOble task. — Love, Dad.",source:"Traditional"},
+{cat:J,text:"'Doctor, I keep thinking I'm a moth.' 'You need a psychiatrist, not a dentist.' 'I know, but your light was on.'",source:"Classic"},
+{cat:J,text:"An anti-Semite in a bar orders drinks for everyone except the Jewish man in the corner. The Jewish man smiles and says 'Thank you.' He does it again. Same response. The anti-Semite asks the bartender, 'What's wrong with that Jew?' The bartender says, 'Nothing — he owns the bar.'",featured:true,source:"Classic"},
+{cat:J,text:"A man walks into a synagogue with a parrot on his shoulder. The rabbi asks, 'Where did you get that?' The parrot says, 'Brooklyn — there's hundreds of them.'",source:"Classic"},
+{cat:J,text:"What's the definition of a Jewish dilemma? Free ham.",source:"Classic one-liner"},
+
+// ═══ CLEVER OBSERVATIONS ═══
+{cat:C,text:"I told my wife she was drawing her eyebrows too high. She looked surprised.",source:"Classic"},
+{cat:C,text:"The first time I got a universal remote, I thought: 'This changes everything.'",source:"Classic"},
+{cat:C,text:"I have an inferiority complex, but it's not a very good one.",source:"Classic"},
+{cat:C,text:"A clear conscience is usually the sign of a bad memory.",source:"Attr. Steven Wright"},
+{cat:C,text:"The problem with kleptomaniacs is that they always take things literally.",source:"Classic"},
+{cat:C,text:"I used to think the brain was the most important organ. Then I thought, look what's telling me that.",source:"Attr. Emo Philips"},
+{cat:C,text:"Nostalgia isn't what it used to be.",source:"Classic"},
+{cat:C,text:"Experience is a wonderful thing. It enables you to recognize a mistake when you make it again.",source:"Classic"},
+{cat:C,text:"The early bird gets the worm, but the second mouse gets the cheese.",featured:true,source:"Classic"},
+{cat:C,text:"Knowledge is knowing a tomato is a fruit. Wisdom is not putting it in a fruit salad.",source:"Classic"},
+{cat:C,text:"I asked God for a bike, but I know God doesn't work that way. So I stole a bike and asked for forgiveness.",source:"Attr. Emo Philips"},
+{cat:C,text:"If you think nobody cares whether you're alive, try missing a couple of payments.",source:"Classic"},
+{cat:C,text:"Some cause happiness wherever they go; others whenever they go.",source:"Attr. Oscar Wilde"},
+{cat:C,text:"People who think they know everything are a great annoyance to those of us who do.",source:"Attr. Isaac Asimov"},
+{cat:C,text:"The difference between genius and stupidity is: genius has its limits.",source:"Attr. Albert Einstein"},
+{cat:C,text:"I once gave my husband the silent treatment for a week. At the end he said, 'Hey, we're getting along pretty well lately.'",source:"Classic"},
+{cat:C,text:"Change is inevitable, except from a vending machine.",source:"Classic"},
+{cat:C,text:"When tempted to fight fire with fire, remember the fire department usually uses water.",source:"Classic"},
+{cat:C,text:"Hospitality is making your guests feel at home even when you wish they were.",source:"Classic"},
+{cat:C,text:"By the time a man realizes his father was right, he has a son who thinks he's wrong.",source:"Classic"},
+{cat:C,text:"I always wanted to be somebody. Now I realize I should have been more specific.",source:"Attr. Lily Tomlin"},
+{cat:C,text:"I used to be indecisive, but now I'm not so sure.",source:"Classic"},
+{cat:C,text:"The shinbone is a device for finding furniture in a dark room.",source:"Classic"},
+{cat:C,text:"I intend to live forever. So far, so good.",source:"Attr. Steven Wright"},
+{cat:C,text:"I didn't say it was your fault. I said I was blaming you.",source:"Classic"},
+{cat:C,text:"Going to church doesn't make you a Christian any more than standing in a garage makes you a car.",source:"Classic"},
+{cat:C,text:"How is it one careless match can start a forest fire, but it takes a whole box to start a campfire?",source:"Classic"},
+{cat:C,text:"I don't suffer from insanity — I enjoy every minute of it.",source:"Classic"},
+{cat:C,text:"If you're too open-minded, your brains will fall out.",source:"Classic"},
+{cat:C,text:"Some people hear voices. Some see invisible people. Others have no imagination whatsoever.",source:"Classic"},
+{cat:C,text:"The road to success is always under construction.",source:"Attr. Lily Tomlin"},
+{cat:C,text:"A TV can insult your intelligence, but nothing rubs it in like a computer.",source:"Classic"},
+{cat:C,text:"The trouble with the trouble with the world is that the stupid are cocksure and the intelligent are full of doubt.",source:"Attr. Bertrand Russell"},
+{cat:C,text:"I'm not arguing. I'm just explaining why I'm right.",source:"Classic"},
+{cat:C,text:"The only mystery in life is why the kamikaze pilots wore helmets.",source:"Classic"},
+
+// ═══ DARK WIT ═══
+{cat:D,text:"I want to die peacefully in my sleep, like my grandfather. Not screaming in terror, like the passengers in his car.",featured:true,source:"Classic"},
+{cat:D,text:"My grandfather has the heart of a lion — and a lifetime ban from the zoo.",source:"Classic"},
+{cat:D,text:"The doctor gave me six months to live. When I couldn't pay the bill, he gave me another six months.",source:"Attr. Henny Youngman"},
+{cat:D,text:"My therapist says I have a preoccupation with vengeance. We'll see about that.",source:"Classic"},
+{cat:D,text:"I told my doctor I broke my arm in two places. He told me to stop going to those places.",source:"Attr. Henny Youngman"},
+{cat:D,text:"Give a man a fire and he's warm for a day. Set a man on fire and he's warm for the rest of his life.",source:"Classic dark"},
+{cat:D,text:"My wife and I were happy for twenty years. Then we met.",source:"Attr. Rodney Dangerfield"},
+{cat:D,text:"I was raised as an only child, which really annoyed my sister.",source:"Classic"},
+{cat:D,text:"When one door closes, another opens. Other than that, it's a pretty good car.",source:"Classic"},
+{cat:D,text:"Where there's a will, I want to be in it.",source:"Classic"},
+{cat:D,text:"My doctor told me I was paranoid. Well, he didn't actually say it, but I could tell he was thinking it.",source:"Classic"},
+{cat:D,text:"The worst time to have a heart attack is during a game of charades.",source:"Classic"},
+{cat:D,text:"I have a joke about trickle-down economics, but 99% of you will never get it.",featured:true,source:"Classic"},
+{cat:D,text:"Money can't buy happiness, but it's more comfortable to cry in a Mercedes than on a bicycle.",source:"Classic"},
+{cat:D,text:"I childproofed my house, but they still get in.",source:"Classic"},
+{cat:D,text:"Life is like a box of chocolates. It doesn't last as long for fat people.",source:"Classic dark"},
+{cat:D,text:"Just burned 2,000 calories. That's the last time I leave brownies in the oven while I nap.",source:"Classic"},
+{cat:D,text:"A pessimist sees the dark side of the cloud. An optimist sees the silver lining. A realist sees a weather front moving in. The pilot sees them all and changes altitude.",source:"Classic"},
+{cat:D,text:"My wife told me to stop impersonating a flamingo. I had to put my foot down.",source:"Classic"},
+{cat:D,text:"I have a stepladder. Not a real ladder — we never got along.",source:"Classic"},
+{cat:D,text:"At what age is it appropriate to tell my dog he's adopted?",source:"Classic"},
+{cat:D,text:"The Man Who Created Autocorrect Has Died. Restaurant In Peace.",source:"Classic"},
+{cat:D,text:"My wife says I'm immature. I told her to get out of my fort.",source:"Classic"},
+{cat:D,text:"I'd like to have kids one day. I don't think I could stand them any longer than that.",source:"Classic"},
+{cat:D,text:"A pessimist is someone who, when they smell flowers, looks around for a coffin.",source:"Traditional"},
+{cat:D,text:"Two fish are in a tank. One says to the other, 'Do you know how to drive this thing?'",source:"Classic"},
+{cat:D,text:"I asked my wife what she wanted for her birthday. She said, 'Nothing would make me happier than a diamond necklace.' So I got her nothing.",source:"Classic"},
+{cat:D,text:"The problem with suicide jokes is they're really only funny once.",source:"Dark"},
+{cat:D,text:"My wife left a note on the fridge: 'It's not working. I can't take it anymore. I'm going to my mother's.' I opened the fridge. The light came on. The beer was cold. What the hell is she talking about?",source:"Classic"},
+{cat:D,text:"Relationships are a lot like algebra. Have you ever looked at your X and wondered Y?",source:"Classic"},
+
+// ═══ WORDPLAY & WIT ═══
+{cat:W,text:"Time flies like an arrow. Fruit flies like a banana.",featured:true,source:"Attr. Groucho Marx"},
+{cat:W,text:"Helvetica and Times New Roman walk into a bar. The bartender says, 'We don't serve your type.'",source:"Classic"},
+{cat:W,text:"A man walks into a bar with a slab of asphalt under his arm. 'A beer please, and one for the road.'",source:"Classic"},
+{cat:W,text:"I'm on a whiskey diet. I've lost three days already.",source:"Classic"},
+{cat:W,text:"To the person who stole my Microsoft Office — I will find you. You have my Word.",source:"Classic"},
+{cat:W,text:"I stayed up all night wondering where the sun went. Then it dawned on me.",source:"Classic"},
+{cat:W,text:"A plateau is the highest form of flattery.",featured:true,source:"Classic"},
+{cat:W,text:"A soldier survived mustard gas and pepper spray. He's now a seasoned veteran.",source:"Classic"},
+{cat:W,text:"I wasn't originally going to get a brain transplant, but then I changed my mind.",source:"Classic"},
+{cat:W,text:"There's a fine line between a numerator and a denominator. Only a fraction of people will find this funny.",source:"Classic"},
+{cat:W,text:"Atheism is a non-prophet organization.",source:"Classic"},
+{cat:W,text:"I'm addicted to brake fluid, but I can stop whenever I want.",source:"Classic"},
+{cat:W,text:"I used to hate facial hair, but then it grew on me.",source:"Classic"},
+{cat:W,text:"I'm reading a horror story in Braille. Something bad is going to happen — I can feel it.",source:"Classic"},
+{cat:W,text:"There are three kinds of people: those who can count, and those who can't.",source:"Classic"},
+{cat:W,text:"Velcro — what a rip-off.",source:"Classic"},
+{cat:W,text:"A courtroom artist was arrested today. Details are sketchy.",source:"Classic"},
+{cat:W,text:"Did you hear about the mathematician afraid of negative numbers? He'll stop at nothing to avoid them.",source:"Classic"},
+{cat:W,text:"I entered ten puns in a contest to see if any would win. No pun in ten did.",featured:true,source:"Classic"},
+{cat:W,text:"My ceiling isn't the best, but it's up there.",source:"Classic"},
+{cat:W,text:"If you ever feel cold, stand in a corner. They're usually around 90 degrees.",source:"Classic"},
+{cat:W,text:"Thanks for explaining the word 'many' to me. It means a lot.",source:"Classic"},
+{cat:W,text:"I used to be a banker, but I lost interest.",source:"Classic"},
+{cat:W,text:"A dyslexic man walks into a bra.",source:"Classic"},
+{cat:W,text:"The rotation of Earth really makes my day.",source:"Classic"},
+{cat:W,text:"I tried to write a chemistry joke, but I got no reaction.",source:"Classic"},
+{cat:W,text:"I'm glad I know sign language. It's pretty handy.",source:"Classic"},
+{cat:W,text:"What do you call a Frenchman wearing sandals? Philippe Philoppe.",source:"Classic"},
+{cat:W,text:"I used to be a personal trainer. Then I gave my too weak notice.",source:"Classic"},
+{cat:W,text:"Broken pencils are pointless.",source:"Classic"},
+
+// ═══ SOCIAL SATIRE ═══
+{cat:S,text:"A diplomat is someone who can tell you to go to hell in such a way that you actually look forward to the trip.",featured:true,source:"Classic"},
+{cat:S,text:"A committee is a group of people who individually can do nothing, but as a group decide that nothing can be done.",source:"Classic"},
+{cat:S,text:"A bank is a place that will lend you money — if you can prove you don't need it.",source:"Classic"},
+{cat:S,text:"An economist is someone who didn't have enough personality to become an accountant.",source:"Classic"},
+{cat:S,text:"War does not determine who is right — only who is left.",source:"Classic"},
+{cat:S,text:"A liberal is a conservative who's been arrested. A conservative is a liberal who's been mugged.",source:"Traditional"},
+{cat:S,text:"I asked my North Korean friend how things were going. He said he couldn't complain.",featured:true,source:"Classic"},
+{cat:S,text:"In capitalism, man exploits man. In communism, it's the other way around.",source:"Classic Eastern European"},
+{cat:S,text:"Politicians and diapers have one thing in common — they should both be changed regularly, and for the same reason.",source:"Classic"},
+{cat:S,text:"The problem with political jokes is they get elected.",featured:true,source:"Classic"},
+{cat:S,text:"The trouble with the rat race is that even if you win, you're still a rat.",source:"Attr. Lily Tomlin"},
+{cat:S,text:"If con is the opposite of pro, what is the opposite of Congress?",source:"Classic American"},
+{cat:S,text:"Behind every successful man is a surprised woman.",source:"Attr. Maryon Pearson"},
+{cat:S,text:"A bureaucrat is a person who cuts red tape — lengthwise.",source:"Classic"},
+{cat:S,text:"Tact is the ability to describe others as they see themselves.",source:"Attr. Abraham Lincoln"},
+{cat:S,text:"If you want to know what God thinks of money, just look at the people he gave it to.",source:"Attr. Dorothy Parker"},
+{cat:S,text:"The best argument against democracy is a five-minute conversation with the average voter.",source:"Attr. Churchill"},
+{cat:S,text:"In democracy, your vote counts. In feudalism, your count votes.",source:"Classic"},
+{cat:S,text:"Money talks. Mine always says goodbye.",source:"Classic"},
+{cat:S,text:"If you think education is expensive, try ignorance.",source:"Classic"},
+{cat:S,text:"The meek shall inherit the earth — if that's OK with everyone else.",source:"Classic"},
+{cat:S,text:"Alcohol doesn't solve any problems, but then again, neither does milk.",source:"Classic"},
+{cat:S,text:"If voting made any difference, they wouldn't let us do it.",source:"Classic"},
+{cat:S,text:"Saying 'I'm sorry' and 'I apologize' mean the same thing — unless you're at a funeral.",source:"Classic"},
+{cat:S,text:"A status symbol is anything you can't afford but did.",source:"Classic"},
+{cat:S,text:"When I was a kid, I wanted to be older. This is not what I expected.",source:"Classic"},
+{cat:S,text:"I believe in equality. Everyone should get equally insulted.",source:"Classic"},
+{cat:S,text:"The taxpayer: someone who works for the federal government but doesn't have to take the civil service examination.",source:"Attr. Ronald Reagan"},
+{cat:S,text:"A government big enough to give you everything you want is strong enough to take everything you have.",source:"Classic political"},
+{cat:S,text:"The secret of success is sincerity. Once you can fake that, you've got it made.",source:"Classic"},
+
+// ═══ CLASSIC STORIES ═══
+{cat:X,text:"Sherlock Holmes and Dr. Watson go camping. In the middle of the night, Holmes wakes Watson: 'Look up. What do you see?' 'Millions of stars.' 'What does that tell you?' Watson thinks. 'Astronomically, millions of galaxies. Theologically, God is great. Meteorologically, tomorrow will be beautiful. What does it tell you, Holmes?' 'Watson, you idiot. Someone has stolen our tent.'",featured:true,source:"Classic British"},
+{cat:X,text:"A man is flying a hot air balloon and realizes he's lost. He spots someone below. 'Can you help? I promised a friend I'd meet him an hour ago.' The man says, 'You're approximately 30 feet above this field.' 'You must be an engineer.' 'I am. How'd you know?' 'Everything you said is technically correct but useless.' 'You must be a manager.' 'How'd you know?' 'You don't know where you are or where you're going, you've risen on hot air, you made a promise you can't keep, and you expect people beneath you to solve your problems.'",featured:true,source:"Classic"},
+{cat:X,text:"A man goes to a psychiatrist. 'Doctor, my brother thinks he's a chicken.' 'Why don't you turn him in?' 'I would, but I need the eggs.'",source:"Attr. Woody Allen"},
+{cat:X,text:"Two hunters are in the woods when one collapses. His friend calls 911. 'My friend is dead! What do I do?' 'First, make sure he's dead.' Silence. Gunshot. 'OK, now what?'",featured:true,source:"World's funniest joke, 2002"},
+{cat:X,text:"A man walks into a pet shop. 'I'd like a wasp, please.' 'We don't sell wasps.' 'But you've got one in the window.'",source:"Classic British"},
+{cat:X,text:"A man goes to the doctor. 'Everywhere I touch hurts — my knee, my shoulder, my head.' The doctor says, 'Your body is fine. Your finger is broken.'",source:"Classic"},
+{cat:X,text:"A guy shows up late to work. The boss yells, 'You should've been here at 8:30!' He replies, 'Why? What happened at 8:30?'",source:"Classic"},
+{cat:X,text:"A man is at a funeral and asks the widow if he can say a word. She nods. He stands up: 'Plethora.' She smiles. 'Thanks, that means a lot.'",featured:true,source:"Classic"},
+{cat:X,text:"A turtle is mugged by two snails. The police ask what happened. The turtle says, 'I don't know — it all happened so fast.'",source:"Classic"},
+{cat:X,text:"A photon checks into a hotel. The bellhop asks, 'Can I help with your luggage?' 'No thanks, I'm traveling light.'",source:"Classic"},
+{cat:X,text:"Einstein, Newton, and Pascal are playing hide and seek. Einstein counts. Pascal hides. Newton draws a 1m×1m square and stands in it. 'Newton, I found you!' 'No — one Newton per square meter. You found Pascal.'",featured:true,source:"Classic science"},
+{cat:X,text:"An MIT linguistics professor says, 'In English, a double negative is a positive. In some languages, a double negative is still negative. But no language has a double positive forming a negative.' From the back: 'Yeah, right.'",featured:true,source:"Classic academic"},
+{cat:X,text:"A man goes to the doctor. 'Bad news and worse news.' 'What's the bad news?' 'You have 24 hours to live.' 'What could be worse?' 'I've been trying to reach you since yesterday.'",source:"Classic"},
+{cat:X,text:"A dog walks into a telegraph office. 'I'd like to send a message: Woof woof woof woof woof woof woof woof woof.' The clerk says, 'That's nine woofs. You could send one more for the same price.' The dog: 'But that wouldn't make any sense.'",source:"Classic"},
+{cat:X,text:"A man walks into a bar with a dog. 'No dogs.' 'But he talks!' 'Prove it.' He asks: 'What's on top of a house?' 'Roof!' 'What does sandpaper feel like?' 'Rough!' 'Greatest baseball player?' 'Ruth!' Bartender throws them out. The dog says, 'Should I have said DiMaggio?'",featured:true,source:"Classic"},
+{cat:X,text:"A man walks into a bar and pulls out tiny people and a tiny piano. Beautiful music. 'Where'd you get them?' 'Genie outside, but he's hard of hearing.' The bartender runs out, comes back covered in ducks. 'I didn't ask for a million ducks!' The man nods sadly. 'You think I asked for twelve-inch pianists?'",source:"Classic"},
+{cat:X,text:"A man is on his deathbed. He asks for a lawyer and a priest. They stand on either side. 'Why both?' 'Jesus died between two thieves. I'd like to go out the same way.'",source:"Classic"},
+{cat:X,text:"During a trial, the prosecutor asks an elderly witness: 'Mrs. Jones, do you know me?' 'Yes, you've been a big disappointment. You lie, you cheat, everyone knows you cheat on your wife.' Stunned. 'Do you know the defense attorney?' 'Yes, he's lazy, bigoted, and a drunk.' The judge whispers to both: 'If either of you idiots asks her if she knows me, I'll send you both to jail.'",featured:true,source:"Classic legal"},
+{cat:X,text:"An old man sits on a park bench, crying. A young man asks why. 'I'm 85. I have a 25-year-old wife. Every morning she makes pancakes and we make love. Lunch is gourmet and more love. Dinner is steak and lobster.' 'That sounds amazing! Why are you crying?' 'I can't remember where I live!'",source:"Classic"},
+{cat:X,text:"Two men meet on the street. 'Sorry to hear about the fire at your warehouse.' 'Shhh! That's tomorrow!'",source:"Classic"},
+{cat:X,text:"A doctor reaches into his pocket for a prescription and pulls out a rectal thermometer. 'Great. Some asshole has my pen.'",source:"Classic"},
+{cat:X,text:"A lawyer, an engineer, and a mathematician are asked: 'What is 2+2?' The engineer: 'Approximately 3.99.' The lawyer: 'In the case of Svenson v. Svenson, 2+2 was proven to be 4.' The mathematician closes the door, pulls down the blinds, and whispers, 'What do you want it to be?'",featured:true,source:"Classic"},
+{cat:X,text:"Beethoven is sitting in an open grave erasing sheets of music. A visitor asks what he's doing. 'Decomposing.'",source:"Classic"},
+{cat:X,text:"Three men — an editor, a politician, and a mathematician — debate whether it's better to have a wife or a mistress. The editor says a wife, for comfort. The politician says a mistress, for passion. The mathematician says both — so each thinks you're with the other, and you can get some work done.",featured:true,source:"Classic"},
+{cat:X,text:"An old man is stopped by police at 2 AM. 'Where are you going?' 'I'm on my way to a lecture about alcohol abuse, smoking, and staying out late.' 'Who gives that lecture at this hour?' 'My wife.'",source:"Classic"},
+{cat:X,text:"A woman walks into a shop and sees a dress in the window. 'Can I try that on in the window?' 'It would be better to use the changing room.'",source:"Classic British"},
+{cat:X,text:"A drunk staggers into a church confessional. Silence. The priest coughs. Nothing. The priest knocks. The drunk says, 'No use knocking, mate. There's no paper in this one either.'",source:"Classic"},
+{cat:X,text:"A woman tells her doctor, 'I've got a bad back.' He examines her. 'It's old age.' She says, 'I want a second opinion.' He says, 'OK, you're ugly too.'",source:"Attr. Henny Youngman"},
+{cat:X,text:"A man goes into a fish-and-chip shop with a fish under his arm. 'Do you have any fishcakes?' 'Of course.' 'Good — it's his birthday.'",source:"Classic British"},
+{cat:X,text:"A nervous young man asks his father for advice before his wedding night. Dad says, 'Just remember — she doesn't know anything either.' Later, the bride says, 'Darling, shouldn't we be on the bed?'",source:"Classic"},
+{cat:X,text:"A pirate walks into a bar with a ship's wheel on his pants. 'What's with the wheel?' 'Arrr, it's drivin' me nuts.'",source:"Classic"},
+{cat:X,text:"A farmer counted 297 cows in his field. But when he rounded them up, he had 300.",source:"Classic"},
+{cat:X,text:"A man brings his best friend home for dinner, unannounced. His wife screams — the apartment's a mess, no food prepared. He says, 'Relax. Before I bring you to the kitchen, I want him to see what I live with every day — so he'll stop trying to persuade me to leave you.'",source:"Classic reversal"},
+{cat:X,text:"A priest, a minister, and a rabbit walk into a blood bank. The rabbit says, 'I think I might be a Type O.'",source:"Classic"},
+{cat:X,text:"A man and his wife are watching boxing. He sighs, 'Disappointed. All over in four minutes.' She replies, 'Good. Now you know how I feel.'",source:"Classic"},
+{cat:J,text:"A man goes to see a rabbi. 'Rabbi, something terrible is happening and I have to talk to you about it.' 'What's wrong?' 'My wife is poisoning me.' The rabbi thinks carefully. 'Let me talk to her.' The next day the rabbi calls the man. 'I spent three hours talking with your wife. You want my advice?' 'Yes.' 'Take the poison.'",source:"Classic"},
+{cat:D,text:"They say there's safety in numbers. Tell that to six million Jews.",source:"Extreme dark classic"},
+{cat:C,text:"The real trouble with reality is there's no background music.",source:"Classic"},
+{cat:S,text:"Whoever said money can't solve your problems must not have had enough money to solve them.",source:"Classic"},
+{cat:W,text:"I told my suitcases there will be no vacation this year. Now I'm dealing with emotional baggage.",source:"Classic"},
+{cat:X,text:"A man walks into a zoo. The only animal in the entire zoo is a dog. It's a shih tzu.",source:"Classic"},
+{cat:J,text:"How do you know when you're at an Orthodox Jewish wedding? The mother of the bride is pregnant. How do you know when you're at a Conservative Jewish wedding? The bride is pregnant. How do you know when you're at a Reform Jewish wedding? The rabbi is pregnant.",source:"Classic"},
+{cat:C,text:"I finally realized that people are prisoners of their phones — that's why they're called 'cell' phones.",source:"Classic"},
+{cat:X,text:"A woman gets on a bus holding a baby. The driver says, 'That's the ugliest baby I've ever seen!' Furious, she goes to the back. She says to the man next to her, 'The driver just insulted me!' 'You go right up there and tell him off. Go ahead — I'll hold your monkey.'",source:"Classic"},
+];
+
+// ═══════════════════════════════════════════
+// Application
+// ═══════════════════════════════════════════
+
+let allJokes = [...CURATED];
+let filteredJokes = [...allJokes];
+let activeCategory = 'All';
+let showingFavourites = false;
+let favourites = JSON.parse(localStorage.getItem('raconteur-favs') || '[]');
+
+const $list = document.getElementById('jokeList');
+const $search = document.getElementById('search');
+const $cats = document.getElementById('categories');
+const $randomBtn = document.getElementById('randomBtn');
+const $favToggle = document.getElementById('favToggle');
+const $toast = document.getElementById('toast');
+const $endOrnament = document.getElementById('endOrnament');
+const $jokeCount = document.getElementById('jokeCount');
+const $apiSearchBtn = document.getElementById('apiSearchBtn');
+let apiResults = []; // holds the latest online search results
+
+const API_CAT_MAP = { Programming:C, Misc:C, Pun:W, Spooky:D, Christmas:X, Dark:D };
+
+async function fetchAPIJokes(n = 10) {
+  try {
+    const r = await fetch(`https://v2.jokeapi.dev/joke/Any?amount=${n}&blacklistFlags=racist,sexist`);
+    if (!r.ok) return [];
+    const d = await r.json();
+    return (d.jokes || [d]).filter(j => !j.error).map(j => ({
+      cat: API_CAT_MAP[j.category] || C,
+      text: j.type === 'twopart' ? `${j.setup}\n\n${j.delivery}` : j.joke,
+      source: 'JokeAPI', apiId: j.id,
+      setup: j.type === 'twopart' ? j.setup : null,
+      delivery: j.type === 'twopart' ? j.delivery : null
+    }));
+  } catch { return []; }
+}
+
+async function loadAPIJokes() {
+  const aj = await fetchAPIJokes(10);
+  if (aj.length) { allJokes = [...CURATED, ...aj]; applyFilters(); }
+}
+
+async function searchAPIJokes(term) {
+  if (!term || term.length < 2) return [];
+  try {
+    // Try text search first
+    const url = `https://v2.jokeapi.dev/joke/Any?contains=${encodeURIComponent(term)}&amount=10&blacklistFlags=racist,sexist`;
+    const r = await fetch(url);
+    if (!r.ok) return [];
+    const d = await r.json();
+    if (!d.error) {
+      const jokes = d.jokes || [d];
+      return jokes.filter(j => !j.error).map(j => ({
+        cat: API_CAT_MAP[j.category] || C,
+        text: j.type === 'twopart' ? `${j.setup}\n\n${j.delivery}` : j.joke,
+        source: 'JokeAPI', apiId: j.id, online: true,
+        setup: j.type === 'twopart' ? j.setup : null,
+        delivery: j.type === 'twopart' ? j.delivery : null
+      }));
+    }
+    // Text search returned no results — try category match as fallback
+    const catMap = {
+      'programming':'Programming','code':'Programming','dev':'Programming','computer':'Programming',
+      'dark':'Dark','death':'Dark','die':'Dark','dead':'Dark','kill':'Dark',
+      'pun':'Pun','word':'Pun',
+      'christmas':'Christmas','xmas':'Christmas','holiday':'Christmas',
+      'spooky':'Spooky','halloween':'Spooky','ghost':'Spooky','scary':'Spooky'
+    };
+    const lower = term.toLowerCase();
+    const matchedCat = Object.keys(catMap).find(k => lower.includes(k));
+    if (matchedCat) {
+      const catUrl = `https://v2.jokeapi.dev/joke/${catMap[matchedCat]}?amount=5&blacklistFlags=racist,sexist`;
+      const cr = await fetch(catUrl);
+      if (cr.ok) {
+        const cd = await cr.json();
+        if (!cd.error) {
+          const jokes = cd.jokes || [cd];
+          return jokes.filter(j => !j.error).map(j => ({
+            cat: API_CAT_MAP[j.category] || C,
+            text: j.type === 'twopart' ? `${j.setup}\n\n${j.delivery}` : j.joke,
+            source: 'JokeAPI (category match)', apiId: j.id, online: true,
+            setup: j.type === 'twopart' ? j.setup : null,
+            delivery: j.type === 'twopart' ? j.delivery : null
+          }));
+        }
+      }
+    }
+    return [];
+  } catch { return []; }
+}
+
+const CAT_ORDER = [J,C,D,W,S,X];
+
+function getCategories() {
+  const cats = {};
+  (showingFavourites ? getFavJokes() : allJokes).forEach(j => { cats[j.cat] = (cats[j.cat]||0)+1; });
+  return cats;
+}
+
+function renderCategories() {
+  const cats = getCategories();
+  const total = Object.values(cats).reduce((a,b) => a+b, 0);
+  let h = `<button class="cat-pill ${activeCategory==='All'?'active':''}" data-cat="All" role="tab">All <span class="count">${total}</span></button>`;
+  CAT_ORDER.forEach(c => { if(cats[c]) h += `<button class="cat-pill ${activeCategory===c?'active':''}" data-cat="${c}" role="tab">${c} <span class="count">${cats[c]}</span></button>`; });
+  $cats.innerHTML = h;
+}
+
+function jokeId(j) {
+  return j.apiId ? `api-${j.apiId}` : btoa(unescape(encodeURIComponent(j.text.slice(0,80)))).replace(/[^a-zA-Z0-9]/g,'').slice(0,32);
+}
+function isFav(j) { return favourites.includes(jokeId(j)); }
+function getFavJokes() { return allJokes.filter(j => isFav(j)); }
+
+function escHtml(s) { const d = document.createElement('div'); d.textContent = s; return d.innerHTML; }
+function escAttr(s) { return s.replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/'/g,'&#39;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+
+function renderJokeCard(joke, i) {
+  const id = jokeId(joke), faved = isFav(joke);
+  const isTwoPart = joke.setup && joke.delivery;
+  const textHtml = isTwoPart
+    ? `<span class="setup">${escHtml(joke.setup)}</span><span class="delivery">${escHtml(joke.delivery)}</span>`
+    : escHtml(joke.text).replace(/\n\n/g,'<br><br>').replace(/¶/g,'<br><br>');
+  return `<article class="joke-card ${joke.featured?'featured':''}" style="animation-delay:${Math.min(i*0.03,0.6)}s" data-id="${id}">
+    <div class="joke-meta"><span class="joke-category">${escHtml(joke.cat)}</span><span class="joke-source">${escHtml(joke.source||'')}${joke.online?'<span class="api-badge">online</span>':''}</span></div>
+    <div class="joke-text">${textHtml}</div>
+    <div class="joke-actions">
+      <button class="joke-action-btn fav-btn ${faved?'faved':''}" data-id="${id}">${faved?'★ Saved':'☆ Save'}</button>
+      <button class="joke-action-btn copy-btn" data-text="${escAttr(joke.setup?joke.setup+' — '+joke.delivery:joke.text)}">⎘ Copy</button>
+    </div></article>`;
+}
+
+function renderJokes() {
+  if (!filteredJokes.length && !apiResults.length) {
+    $list.innerHTML = `<div class="status"><span class="emoji">${showingFavourites?'☆':'🎭'}</span>${showingFavourites?'No favourites yet. Save jokes you love!':'No jokes match your search. Try "Search Online" for more.'}</div>`;
+    $endOrnament.style.display = 'none'; $jokeCount.textContent = ''; return;
+  }
+  let html = filteredJokes.map((j,i) => renderJokeCard(j,i)).join('');
+  if (apiResults.length) {
+    html += `<div class="api-divider">🌐 Results from JokeAPI</div>`;
+    html += apiResults.map((j,i) => renderJokeCard(j, filteredJokes.length + i)).join('');
+  }
+  $list.innerHTML = html;
+  $endOrnament.style.display = (filteredJokes.length + apiResults.length) > 3 ? 'block' : 'none';
+  const total = filteredJokes.length + apiResults.length;
+  const lbl = showingFavourites ? 'favourite' : 'joke';
+  let countText = `${filteredJokes.length} cached ${lbl}${filteredJokes.length!==1?'s':''}`;
+  if (apiResults.length) countText += ` + ${apiResults.length} online`;
+  $jokeCount.textContent = countText;
+}
+
+function applyFilters() {
+  const q = $search.value.toLowerCase().trim();
+  let src = showingFavourites ? getFavJokes() : allJokes;
+  if (activeCategory !== 'All') src = src.filter(j => j.cat === activeCategory);
+  if (q) src = src.filter(j => j.text.toLowerCase().includes(q) || j.cat.toLowerCase().includes(q) || (j.setup&&j.setup.toLowerCase().includes(q)) || (j.delivery&&j.delivery.toLowerCase().includes(q)) || (j.source&&j.source.toLowerCase().includes(q)));
+  filteredJokes = src;
+  renderCategories(); renderJokes();
+  try {
+    const p = new URLSearchParams();
+    if (activeCategory!=='All') p.set('cat',activeCategory);
+    if (q) p.set('q',q);
+    if (showingFavourites) p.set('favs','1');
+    const qs = p.toString();
+    history.replaceState(null,'',qs?`?${qs}`:location.pathname);
+  } catch {}
+}
+
+function debounce(fn,ms) { let t; return (...a) => { clearTimeout(t); t = setTimeout(()=>fn(...a),ms); }; }
+function toast(msg) { $toast.textContent=msg; $toast.classList.add('show'); setTimeout(()=>$toast.classList.remove('show'), Math.max(2000, msg.length * 40)); }
+
+$search.addEventListener('input', debounce(() => {
+  apiResults = [];
+  const q = $search.value.trim();
+  $apiSearchBtn.style.display = q.length >= 2 ? '' : 'none';
+  applyFilters();
+}, 200));
+
+$apiSearchBtn.addEventListener('click', async () => {
+  const q = $search.value.trim();
+  if (q.length < 2) return;
+  $apiSearchBtn.classList.add('loading');
+  $apiSearchBtn.textContent = '🌐 Searching…';
+  apiResults = await searchAPIJokes(q);
+  $apiSearchBtn.classList.remove('loading');
+  $apiSearchBtn.textContent = '🌐 Search Online';
+  if (!apiResults.length) toast('No online matches — JokeAPI only has ~1,400 jokes. Try simpler terms like "doctor", "bar", "programmer".');
+  else toast(`Found ${apiResults.length} online result${apiResults.length!==1?'s':''}`);
+  renderJokes();
+});
+
+$search.addEventListener('keydown', (e) => {
+  if (e.key === 'Enter' && $search.value.trim().length >= 2) {
+    $apiSearchBtn.click();
+  }
+});
+$cats.addEventListener('click', e => { const p = e.target.closest('.cat-pill'); if(p) { activeCategory=p.dataset.cat; apiResults=[]; applyFilters(); }});
+$randomBtn.addEventListener('click', () => {
+  showingFavourites=false; $favToggle.classList.remove('active'); activeCategory='All'; $search.value='';
+  apiResults=[]; $apiSearchBtn.style.display='none';
+  filteredJokes=[allJokes[Math.floor(Math.random()*allJokes.length)]];
+  renderCategories(); renderJokes(); $jokeCount.textContent='Random pick'; $endOrnament.style.display='none';
+});
+$favToggle.addEventListener('click', () => {
+  showingFavourites=!showingFavourites; $favToggle.classList.toggle('active',showingFavourites);
+  activeCategory='All'; $search.value=''; apiResults=[]; $apiSearchBtn.style.display='none'; applyFilters();
+});
+$list.addEventListener('click', e => {
+  const fb = e.target.closest('.fav-btn');
+  if (fb) {
+    const id=fb.dataset.id;
+    if(favourites.includes(id)) { favourites=favourites.filter(f=>f!==id); fb.classList.remove('faved'); fb.innerHTML='☆ Save'; toast('Removed'); }
+    else {
+      favourites.push(id);
+      // If it's an online result not yet in allJokes, add it so it shows in favourites
+      const inAll = allJokes.some(j => jokeId(j) === id);
+      if (!inAll) {
+        const onlineJoke = apiResults.find(j => jokeId(j) === id);
+        if (onlineJoke) allJokes.push({...onlineJoke});
+      }
+      fb.classList.add('faved'); fb.innerHTML='★ Saved'; toast('Saved to favourites');
+    }
+    localStorage.setItem('raconteur-favs',JSON.stringify(favourites));
+    if(showingFavourites) applyFilters(); return;
+  }
+  const cb = e.target.closest('.copy-btn');
+  if (cb) navigator.clipboard.writeText(cb.dataset.text).then(()=>toast('Copied!')).catch(()=>toast('Could not copy'));
+});
+
+const p = new URLSearchParams(location.search);
+if(p.get('cat')) activeCategory=p.get('cat');
+if(p.get('q')) $search.value=p.get('q');
+if(p.get('favs')==='1') { showingFavourites=true; $favToggle.classList.add('active'); }
+applyFilters();
+loadAPIJokes();
+</script>
+</body>
+</html>
